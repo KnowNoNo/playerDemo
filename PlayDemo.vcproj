@@ -1406,6 +1406,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\bitmap2.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\res\bitmap5.bmp"
 				>
 			</File>
@@ -1451,6 +1455,10 @@
 			</File>
 			<File
 				RelativePath="res\play.bmp"
+				>
+			</File>
+			<File
+				RelativePath="G:\ÊÓÆµ»Ø·Ådemo3\res\PlayDemo.ico"
 				>
 			</File>
 			<File
@@ -1506,6 +1514,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\DuiPlayer\Release\skin\btn_playlist_hide.png"
+			>
+		</File>
 		<File
 			RelativePath="ReadMe.txt"
 			>

@@ -21,6 +21,7 @@
 #include "Player.h"
 #include "EasySize.h"
 #include "BitMapSlider.h"
+#include "afxwin.h"
 
 enum MENU_STATE{FILEOPEN, FILECLOSE, FILEINDEXCREATED, STOPPLAY, STARTPLAY,ENABLEFISHEYE,DISABLEFISHEYE};
 // Ã¶¾Ù±àÂë¸ñÊ½
@@ -99,18 +100,21 @@ protected:
 	afx_msg void OnButtonForword();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnButtonStop();
+	afx_msg void OnBnClickedButtonFull();
 	afx_msg void OnDevCase();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 protected:
 	void OpenFile(CString csFilePath);
+	void AdaptWindowSize( UINT cxScreen );
 	int ChangeUIState(PLAY_STATE nState);
 	int ChangeSingleUIState(PLAY_STATE nState, BOOL bEnable);
 	int ChangeMenuState(MENU_STATE nState);
 	int MediaInit();
 	int OpenAudio();
 	int CloseAudio();
-	void AddFileList(CString csFilePath);
+	int AddFileList(CString csFilePath);
+	int	SetCurIndex(int iIndex);
 private:
 	
 	
@@ -151,11 +155,13 @@ private:
 	CDlgPicSetting m_dlgPicSetting;
 
 	DecodeEngineDlg m_dlgDecodeEngine;
-
+	
 	PLAY_STATE m_lastState;
 
 	UINT m_lastFisheyeMode;
 	CToolTipCtrl m_ContentTip;
+
+	int			m_nCurSelectItem;
 public:
 	afx_msg void OnFisheyeviewWall1pplus8();
 	afx_msg void OnFisheyeviewFloor1pplus6();
@@ -210,7 +216,7 @@ private:
 public:
 	afx_msg void OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawSliderAudio(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnBnClickedButtonFull();
+	afx_msg void OnNMCustomdrawList2(NMHDR *pNMHDR, LRESULT *pResult);
 };
 
 //{{AFX_INSERT_LOCATION}}
