@@ -131,8 +131,8 @@ void CPlayStateText::Show()
 		//swprintf(szText, L"%-40s%4d*%4d%4df/s%8dkb/s%6d/%-7d%02d:%02d:%02d/%02d:%02d:%02d", 
 		//	m_szState.GetBuffer(m_szState.GetLength()), m_nWidth, m_nHeight, m_nRate, (int)m_dbBitrate, m_nPlayedFrame, m_nTotalFrame,
 		//	nHour, nMinute, nSecond, nHour2, nMinute2, nSecond2);
-		swprintf(szText, L"%-40s分辨率:%4d*%4d       时间:%02d:%02d:%02d/%02d:%02d:%02d", 
-			m_szState.GetBuffer(m_szState.GetLength()), m_nWidth, m_nHeight,
+		swprintf(szText, L"%-25s分辨率:%4d*%4d  帧数:%6d/%-7d    时间:%02d:%02d:%02d/%02d:%02d:%02d", 
+			m_szState.GetBuffer(m_szState.GetLength()), m_nWidth, m_nHeight,m_nPlayedFrame, m_nTotalFrame,
 			nHour, nMinute, nSecond, nHour2, nMinute2, nSecond2);
 		//ChangeChar(szText, 255, 0, ' ');
 

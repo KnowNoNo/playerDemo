@@ -40,6 +40,8 @@
 #define IDB_BITMAP_FULL                 168
 #define IDI_ICON1                       169
 #define IDB_BITMAP_LOGO                 170
+#define IDB_PNG1                        172
+#define IDB_BITMAP_SHOWLIST             174
 #define IDC_STATIC_PLAY                 1000
 #define IDC_SLIDER_PROC                 1001
 #define IDC_BUTTON_PICTURE              1011
@@ -87,6 +89,9 @@
 #define IDC_EDIT1                       1060
 #define IDC_EDIT_COMMAND                1060
 #define IDC_LIST2                       1061
+#define IDC_BUTTON2                     1063
+#define IDC_BUTTON1                     1065
+#define IDC_BUTTON_LIST                 1065
 #define IDC_BUTTON_PLAY                 2000
 #define IDC_BUTTON_PAUSE                2001
 #define IDC_BUTTON_STOP                 2002
@@ -178,9 +183,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        171
+#define _APS_NEXT_RESOURCE_VALUE        175
 #define _APS_NEXT_COMMAND_VALUE         32862
-#define _APS_NEXT_CONTROL_VALUE         1062
+#define _APS_NEXT_CONTROL_VALUE         1066
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

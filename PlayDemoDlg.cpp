@@ -14,6 +14,9 @@
 #include "CharactorTansfer.h"
 #include <string>
 #include <Winnls.h>
+#include <shlwapi.h>
+
+#pragma comment(lib, "shlwapi.lib")
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -125,6 +128,7 @@ CPlayDemoDlg::CPlayDemoDlg(CWnd* pParent /*=NULL*/)
 	m_nThrowMode = ID_THROW_NO;
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_fTranslate = NULL;
+	m_nCurSelectItem = -1;
 }
 
 void CPlayDemoDlg::DoDataExchange(CDataExchange* pDX)
@@ -150,6 +154,8 @@ void CPlayDemoDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_FORWORD, m_bnForword);
 	DDX_Control(pDX, IDC_BUTTON_FULL, m_bnFull);
 	DDX_Control(pDX, IDC_LIST2, m_listCtrl);
+
+
 	//}}AFX_DATA_MAP
 }
 
@@ -215,9 +221,11 @@ BEGIN_MESSAGE_MAP(CPlayDemoDlg, CDialog)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_AUDIO, &CPlayDemoDlg::OnNMCustomdrawSliderAudio)
 	ON_BN_CLICKED(IDC_BUTTON_FULL, &CPlayDemoDlg::OnBnClickedButtonFull)
 	ON_COMMAND(ID_SETTING_COLOLR, &CPlayDemoDlg::OnSettingCololr)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST2, &CPlayDemoDlg::OnNMCustomdrawList2)
 END_MESSAGE_MAP()
 
 BEGIN_EASYSIZE_MAP(CPlayDemoDlg)
+
 
 
 EASYSIZE(IDC_STATIC_PLAY,ES_BORDER,ES_BORDER,
@@ -278,7 +286,7 @@ BOOL CPlayDemoDlg::OnInitDialog()
 	// TODO: Add extra initialization here
 	
 	this->SetWindowText(L"乘务员疲劳检测分析系统V1.0");
-
+	
 	/*load button bmp*/
 	m_bnPlay.LoadBitmap(IDB_BITMAP_PLAY);
 	m_bnPause.LoadBitmap(IDB_BITMAP_PAUSE);
@@ -329,17 +337,24 @@ BOOL CPlayDemoDlg::OnInitDialog()
 	{
 		return FALSE;
 	}
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PLAY), _T("play"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE), _T("pause"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_STOP), _T("stop"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FAST), _T("fast"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_SLOW), _T("slow"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKWORD), _T("back"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FORWORD), _T("forward"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKONCE), _T("one back"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_ONEBYONE), _T("one forward"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOEND), _T("end"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOBEGIN), _T("begin"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PLAY), _T("播放"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE), _T("暂停"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_STOP), _T("停止"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FAST), _T("加速"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_SLOW), _T("减速"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKWORD), _T("反向播放"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FORWORD), _T("正向播放"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKONCE), _T("前一帧"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_ONEBYONE), _T("下一帧"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOEND), _T("开头"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOBEGIN), _T("结束"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PICTURE),_T("截图"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_AUDIO),_T("音量"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FULL),_T("全屏"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_AUDIO),_T("00:00"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_WAVE),_T("0"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_PROC),_T(""));
+
 	m_ContentTip.Activate(TRUE);
 
 	//移除setting  
@@ -352,6 +367,12 @@ BOOL CPlayDemoDlg::OnInitDialog()
 		int nNum = pMenu->GetMenuItemCount();
 	}
 	
+	// 根据分辨率自动调节窗口大小
+	MONITORINFO oMonitor = {};
+	oMonitor.cbSize = sizeof(oMonitor);
+	::GetMonitorInfo(::MonitorFromWindow(*this, MONITOR_DEFAULTTONEAREST), &oMonitor);
+	AdaptWindowSize(oMonitor.rcMonitor.right - oMonitor.rcMonitor.left);
+
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
@@ -495,7 +516,7 @@ void CPlayDemoDlg::OpenFile(CString csFilePath)
 	
 	/*Initialize status bar, file play be length or total number of frames*/
 	m_dlgStateText.SetPlayedTime(0, CPlayer::Instance()->GetTotalTime());
-	//m_dlgStateText.SetPlayedFrame(0, CPlayer::Instance()->GetTotalFrame());
+	m_dlgStateText.SetPlayedFrame(0, CPlayer::Instance()->GetTotalFrame());
 
 
 	MediaInit();
@@ -513,7 +534,7 @@ void CPlayDemoDlg::OnFileOpen()
 	int      iIndex = -1,iOldIndex = -1;
 	CString  strFilePath;
 	POSITION pos;
-	TCHAR    szFilter[]=L"DAV File(*.dav;)|*.dav;|";
+	TCHAR    szFilter[]=L"DAV File(*.dav;)|*.dav;|ALL File(*.*)|*.*|";
 	CFileDialog fileDlg(TRUE , NULL , NULL , OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ALLOWMULTISELECT , szFilter ,this);
 
 
@@ -722,6 +743,7 @@ int CPlayDemoDlg::ChangeMenuState(MENU_STATE nState)
 void CPlayDemoDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
 	// TODO: Add your message handler code here and/or call default
+	CString csTip;
 
 	switch(GetWindowLong(pScrollBar->m_hWnd, GWL_ID))
 	{
@@ -729,16 +751,24 @@ void CPlayDemoDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		CPlayer::Instance()->Seek(m_sdProc.GetPos());
 		break;
 	case IDC_SLIDER_AUDIO:
-		CPlayer::Instance()->SetAudioVolume(m_sdAuidoVolume.GetPos());
+		if( CPlayer::Instance()->SetAudioVolume(m_sdAuidoVolume.GetPos()) > 0)
+		{
+			csTip.Format(L"%d",m_sdAuidoVolume.GetPos());
+			m_ContentTip.UpdateTipText(csTip,GetDlgItem(IDC_SLIDER_AUDIO));
+		}
+		
 		break;
 	case IDC_SLIDER_WAVE:
-		CPlayer::Instance()->SetAudioWave(m_sdAudioWave.GetPos());
+		if( CPlayer::Instance()->SetAudioWave(m_sdAudioWave.GetPos()) > 0)
+		{
+			csTip.Format(L"%d",m_sdAudioWave.GetPos());
+			m_ContentTip.UpdateTipText(csTip,GetDlgItem(IDC_SLIDER_WAVE));
+		}
 		break;
 	default:
 		break;
 	}
-
-
+	
 	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
@@ -765,10 +795,14 @@ void CPlayDemoDlg::OnTimer(UINT_PTR nIDEvent)
 		{
 			m_dlgStateText.SetPictureSize(nWidht, nHeight);
 		}
-
+		
+		int nPlayTime = CPlayer::Instance()->GetPlayedTime();
 		m_dlgStateText.SetPlayedTime(CPlayer::Instance()->GetPlayedTime(), CPlayer::Instance()->GetTotalTime());
 		m_dlgStateText.SetPlayedFrame(CPlayer::Instance()->GetPlayedFrame(), CPlayer::Instance()->GetTotalFrame());
-
+		
+		CString csTipText;
+		csTipText.Format(L"%02d:%02d:%02d",nPlayTime/3600,nPlayTime/60,nPlayTime%60);
+		m_ContentTip.UpdateTipText(csTipText,GetDlgItem(IDC_SLIDER_PROC));
 		/*Refresh status bar*/
 		m_dlgStateText.Show();
 	}
@@ -1281,13 +1315,19 @@ int CPlayDemoDlg::MediaInit()
 
 int CPlayDemoDlg::OpenAudio()
 {
+	CString csTipText;
 	CPlayer::Instance()->OpenSound(TRUE);
 	m_sdAudioWave.EnableWindow(TRUE);
 	m_sdAuidoVolume.EnableWindow(TRUE);
+
 	m_sdAuidoVolume.SetPos(CPlayer::Instance()->GetAudioVolume());
+	csTipText.Format(L"%d",CPlayer::Instance()->GetAudioVolume());
+	m_ContentTip.UpdateTipText(csTipText,GetDlgItem(IDC_SLIDER_AUDIO));
 
 	CPlayer::Instance()->SetAudioWave(m_sdAudioWave.GetPos());
-	
+	csTipText.Format(L"%d",m_sdAudioWave.GetPos());
+	m_ContentTip.UpdateTipText(csTipText,GetDlgItem(IDC_SLIDER_WAVE));
+
 	m_bnAudio.EnableWindow(TRUE);
 	
 	return 1;
@@ -1337,25 +1377,24 @@ void CPlayDemoDlg::OnButtonForword()
 void CPlayDemoDlg::OnDropFiles(HDROP hDropInfo)
 {
 	TCHAR szFile[1024] = {0};
+	int   nIndex;
 	if( DragQueryFile(hDropInfo, 0, szFile, 1024)<=0 )
 	{
 		return;
 	}
 	
+	if( (nIndex = AddFileList(szFile)) < 0)
+		return;
+
 	OnFileClose();
 	m_dlgOpenFile.m_strFile = szFile;
+	SetCurIndex(nIndex);
 
 	int pos = -1;
 	TCHAR* pbuffer = m_dlgOpenFile.m_strFile.GetBuffer(m_dlgOpenFile.m_strFile.GetLength());
 	if ( -1 != (pos = m_dlgOpenFile.m_strFile.ReverseFind('.')))
 	{
 		pbuffer += pos;
-	}
-	
-	//asf,MP4 only support file mode
-	if (0 == _tcscmp(pbuffer, _T(".asf")) || 0 == _tcscmp(pbuffer, _T(".mp4")))
-	{
-		m_dlgOpenFile.m_nType = 0;
 	}
 	
 	OpenFile(m_dlgOpenFile.m_strFile);
@@ -1746,25 +1785,36 @@ void CPlayDemoDlg::OnLittleWall()
 
 }
 
-void CPlayDemoDlg::AddFileList(CString csFilePath)
+int CPlayDemoDlg::AddFileList(CString csFilePath)
 {	
 	int			iIndex;
 	TCHAR       szName[_MAX_FNAME];
 	TCHAR       szExt[_MAX_EXT];
+	LVITEM		lvIt;
+
+	if(!PathFileExists(csFilePath))
+		return -1;
 
 	_tsplitpath_s(csFilePath.GetBuffer( ), NULL, 0, NULL, 0, szName, _MAX_FNAME, szExt, _MAX_EXT);
 	
+	if(_tcscmp(szExt,L".dav") && _tcscmp(szExt,L".avi") && _tcscmp(szExt,L".mp4") )
+		return -1;
 	iIndex = m_listCtrl.GetItemCount();
-	m_listCtrl.InsertItem(iIndex,L"");
-	//添加名称+类型
-	m_listCtrl.SetItemText(iIndex,0,szName);
-	//添加视频时间总长(min)
-	//m_listCtrl.SetItemText(iIndex,1,m_media.get_durationString().IsEmpty()?L"00:00":m_media.get_durationString());
-	//添加时间总长(S)
-	//m_listCtrl.SetItemText(iIndex,3,m_media.getItemInfo(L"Duration"));
-	//添加URL
-	m_listCtrl.SetItemText(iIndex,1,csFilePath);
-	
+
+	lvIt.mask=LVIF_TEXT;
+	lvIt.pszText= szName;
+	lvIt.iSubItem=0;
+	lvIt.iItem=iIndex;
+	iIndex = m_listCtrl.InsertItem(&lvIt);
+	ASSERT(iIndex >= 0);
+
+	lvIt.mask=LVIF_TEXT;
+	lvIt.iItem=iIndex;
+	lvIt.pszText=csFilePath.GetBuffer(0);
+	lvIt.iSubItem=1;
+	m_listCtrl.SetItem(&lvIt);
+
+	return iIndex;
 }
 void CPlayDemoDlg::OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult)
 {
@@ -1775,10 +1825,13 @@ void CPlayDemoDlg::OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult)
 	POSITION iPos  = m_listCtrl.GetFirstSelectedItemPosition();
 	int      nItem = m_listCtrl.GetNextSelectedItem(iPos);
 
-	if(nItem < 0)
+	if(nItem < 0 || nItem == m_nCurSelectItem)
 		return;
-	
+
 	OnFileClose();
+	SetCurIndex(nItem);
+	m_dlgOpenFile.m_strFile = m_listCtrl.GetItemText(nItem,1);
+	
 	OpenFile(m_listCtrl.GetItemText(nItem,1));
 	//m_CSFor_ListCtrl.Lock();
 	//OnOperator(IDC_STATIC_PLAY);
@@ -1795,12 +1848,118 @@ void CPlayDemoDlg::OnNMCustomdrawSliderAudio(NMHDR *pNMHDR, LRESULT *pResult)
 void CPlayDemoDlg::OnBnClickedButtonFull()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	SendMessage(WM_SYSCOMMAND,SC_MAXIMIZE,0);
+	static BOOL bFull = false;
+	bFull^=1;
+	if(bFull)
+	{
+		SendMessage(WM_SYSCOMMAND,SC_MAXIMIZE,0);
+		m_ContentTip.UpdateTipText(L"退出全屏",GetDlgItem(IDC_BUTTON_FULL));
+	}
+	else
+	{
+		SendMessage(WM_SYSCOMMAND,SC_RESTORE,0);
+		m_ContentTip.UpdateTipText(L"全屏",GetDlgItem(IDC_BUTTON_FULL));
+	}
+	
+
 	//ModifyStyle(WS_CAPTION,0,0);
+	//int cx,cy; 
+	//cx = GetSystemMetrics(SM_CXSCREEN); 
+	//cy = GetSystemMetrics(SM_CYSCREEN);
+
+	//CRect rcTemp; 
+	//rcTemp.BottomRight() = CPoint(cx, cy); 
+	//rcTemp.TopLeft() = CPoint(0, 0); 
+	//MoveWindow(&rcTemp);
 }
 
 void CPlayDemoDlg::OnSettingCololr()
 {
 	// TODO: 在此添加命令处理程序代码
 	m_dlgSetColor.DoModal();
+}
+
+int CPlayDemoDlg::SetCurIndex(int iIndex)
+{
+	m_nCurSelectItem = iIndex;
+	m_listCtrl.Invalidate(TRUE);
+
+	return iIndex;
+}
+void CPlayDemoDlg::OnNMCustomdrawList2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLVCUSTOMDRAW pNMCD = reinterpret_cast<LPNMLVCUSTOMDRAW>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = CDRF_DODEFAULT;
+
+	if(pNMCD->nmcd.dwDrawStage == CDDS_PREPAINT)
+	{
+		*pResult = CDRF_NOTIFYITEMDRAW;
+	}
+	else if(pNMCD->nmcd.dwDrawStage == CDDS_ITEMPREPAINT)
+	{
+		*pResult = CDRF_NOTIFYSUBITEMDRAW;
+	}
+	else if(pNMCD->nmcd.dwDrawStage == (CDDS_ITEMPREPAINT | CDDS_SUBITEM))
+	{
+		COLORREF clrText,clrBk;
+		if(pNMCD->nmcd.dwItemSpec == m_nCurSelectItem)
+		{
+			clrText = RGB(255,0,0);
+			//clrBk   = RGB(255,255,255);
+		}
+		else 
+		{
+			clrText = RGB(0,0,0);
+			//clrBk	= RGB(255,255,255);
+		}
+		if(pNMCD->nmcd.dwItemSpec & 1)//奇数行
+		{
+			clrBk   = RGB(255,255,255);
+		}
+		else
+		{
+			clrBk   = RGB(240,255,255);
+		}
+		pNMCD->clrText   = clrText;
+		pNMCD->clrTextBk = clrBk;
+	}
+
+}
+
+void CPlayDemoDlg::AdaptWindowSize(UINT cxScreen)
+{
+	int iX = 968, iY = 600;
+	int iWidthList = 225, iWidthSearchEdit = 193;
+	SIZE szFixSearchBtn = {201, 0};
+
+	if(cxScreen <= 1024)      // 800*600  1024*768  
+	{
+		iX = 775;
+		iY = 470;
+	} 
+	else if(cxScreen <= 1280) // 1152*864  1280*800  1280*960  1280*1024
+	{
+		iX = 968;
+		iY = 600;
+	}
+	else if(cxScreen <= 1366) // 1360*768 1366*768
+	{
+		iX = 1058;
+		iY = 656;
+		iWidthList        += 21;
+		iWidthSearchEdit  += 21;
+		szFixSearchBtn.cx += 21;
+	}
+	else                      // 1440*900
+	{
+		iX = 1224;
+		iY = 760;
+		iWidthList        += 66;
+		iWidthSearchEdit  += 66;
+		szFixSearchBtn.cx += 66;
+	}
+
+	::SetWindowPos(this->GetSafeHwnd(), NULL, 0, 0, iX, iY, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+	CenterWindow();
 }
