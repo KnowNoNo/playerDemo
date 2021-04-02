@@ -25,7 +25,7 @@
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -53,10 +53,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(VCInstallDir)atlmfc\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Debug/PlayDemo.pch"
@@ -421,6 +422,10 @@
 			</File>
 			<File
 				RelativePath=".\CharactorTansfer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ChildView.cpp"
 				>
 			</File>
 			<File
@@ -944,6 +949,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MainFrm.cpp"
+				>
+			</File>
+			<File
 				RelativePath="MediaInfoDlg.cpp"
 				>
 				<FileConfiguration
@@ -1281,6 +1290,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ChildView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CmdDialog.h"
 				>
 			</File>
@@ -1350,6 +1363,10 @@
 			</File>
 			<File
 				RelativePath="..\SF_PlaySDK\Src\log.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MainFrm.h"
 				>
 			</File>
 			<File
@@ -1506,6 +1523,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\Toolbar.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Toolbar256.bmp"
+				>
+			</File>
+			<File
 				RelativePath=".\res\vol_off.bmp"
 				>
 			</File>
@@ -1514,10 +1539,6 @@
 				>
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\DuiPlayer\Release\skin\btn_playlist_hide.png"
-			>
-		</File>
 		<File
 			RelativePath="ReadMe.txt"
 			>

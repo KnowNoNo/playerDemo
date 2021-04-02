@@ -12,7 +12,8 @@
 #include "StdAfx.h"
 
 #define LANG_INIT() CLanguageConvertor::Init()
-#define LANG_CS(a) CLanguageConvertor::ConvertString(a)
+//#define LANG_CS(a) CLanguageConvertor::ConvertString(a)
+#define LANG_CS(a)	_T(a)
 #define LANG_SETWNDSTATICTEXT(a) CLanguageConvertor::SetWndStaticText(a)
 #define LANG_SETMENUSTATICTEXT(a) CLanguageConvertor::SetMenuStaticText(a)
 

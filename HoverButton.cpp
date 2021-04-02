@@ -48,7 +48,7 @@ BOOL CHoverButton::LoadBitmap(UINT bitmapid)
     m_ButtonSize.cy=bitmapbits.bmHeight;
     m_ButtonSize.cx=bitmapbits.bmWidth/4;
     
-    SetWindowPos(NULL, 0,0, m_ButtonSize.cx,m_ButtonSize.cy,SWP_NOMOVE |SWP_NOOWNERZORDER);
+	SetWindowPos(NULL, 0,0, m_ButtonSize.cx,m_ButtonSize.cy,SWP_NOMOVE |SWP_NOOWNERZORDER);
     return TRUE;
 }
 

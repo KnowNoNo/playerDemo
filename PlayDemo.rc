@@ -84,35 +84,6 @@ BEGIN
     CONTROL         170,IDC_STATIC,"Static",SS_BITMAP,20,20,34,16
 END
 
-IDD_PLAYDEMO_DIALOG DIALOGEX 0, 0, 491, 348
-STYLE DS_SETFONT | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
-EXSTYLE WS_EX_ACCEPTFILES | WS_EX_APPWINDOW
-CAPTION "PlayDemo"
-MENU IDR_MENU
-FONT 9, "宋体", 0, 0, 0x1
-BEGIN
-    CONTROL         "Slider1",IDC_SLIDER_PROC,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,0,294,490,15
-    CONTROL         "",IDC_STATIC_MSG,"Static",SS_LEFTNOWORDWRAP | SS_SUNKEN | WS_GROUP,0,330,490,17
-    LTEXT           "",IDC_STATIC_PLAY,0,1,393,290
-    CONTROL         "",IDC_BUTTON_PLAY,"Button",BS_OWNERDRAW | WS_TABSTOP,8,309,16,16
-    CONTROL         "",IDC_BUTTON_PAUSE,"Button",BS_OWNERDRAW | WS_TABSTOP,24,309,16,16
-    CONTROL         "",IDC_BUTTON_STOP,"Button",BS_OWNERDRAW | WS_TABSTOP,40,309,16,16
-    CONTROL         "",IDC_BUTTON_TOBEGIN,"Button",BS_OWNERDRAW | WS_TABSTOP,56,309,16,16
-    CONTROL         "",IDC_BUTTON_TOEND,"Button",BS_OWNERDRAW | WS_TABSTOP,72,309,16,16
-    CONTROL         "",IDC_BUTTON_BACKONCE,"Button",BS_OWNERDRAW | WS_TABSTOP,88,309,16,16
-    CONTROL         "",IDC_BUTTON_ONEBYONE,"Button",BS_OWNERDRAW | WS_TABSTOP,104,309,16,16
-    CONTROL         "",IDC_BUTTON_SLOW,"Button",BS_OWNERDRAW | WS_TABSTOP,120,309,16,16
-    CONTROL         "",IDC_BUTTON_FAST,"Button",BS_OWNERDRAW | WS_TABSTOP,136,309,16,16
-    CONTROL         "",IDC_BUTTON_PICTURE,"Button",BS_OWNERDRAW | WS_TABSTOP,213,309,16,16
-    CONTROL         "Slider2",IDC_SLIDER_AUDIO,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,337,309,63,9
-    CONTROL         "",IDC_BUTTON_AUDIO,"Button",BS_OWNERDRAW | WS_TABSTOP,321,309,16,17
-    CONTROL         "",IDC_BUTTON_BACKWORD,"Button",BS_OWNERDRAW | WS_TABSTOP,165,309,16,16
-    CONTROL         "",IDC_BUTTON_FORWORD,"Button",BS_OWNERDRAW | WS_TABSTOP,181,309,16,16
-    CONTROL         "",IDC_LIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOSCROLL | LVS_NOSORTHEADER | WS_TABSTOP,393,1,97,290,WS_EX_ACCEPTFILES | WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
-    CONTROL         "Slider2",IDC_SLIDER_WAVE,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,337,317,63,9
-    CONTROL         "",IDC_BUTTON_FULL,"Button",BS_OWNERDRAW | WS_TABSTOP,474,309,16,17
-END
-
 IDD_OPENFILE DIALOG  0, 0, 244, 46
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "OpenFile"
@@ -230,6 +201,41 @@ BEGIN
     EDITTEXT        IDC_EDIT_COMMAND,22,12,136,15,ES_AUTOHSCROLL
 END
 
+IDD_PLAYDEMO_DIALOG DIALOGEX 0, 0, 491, 348
+STYLE DS_SETFONT | WS_CHILD
+EXSTYLE WS_EX_ACCEPTFILES
+MENU IDR_MENU
+FONT 9, "宋体", 0, 0, 0x1
+BEGIN
+    CONTROL         "Slider1",IDC_SLIDER_PROC,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,0,294,490,15
+    CONTROL         "",IDC_STATIC_MSG,"Static",SS_LEFTNOWORDWRAP | SS_SUNKEN | WS_GROUP,0,330,490,17
+    LTEXT           "",IDC_STATIC_PLAY,0,1,393,290
+    CONTROL         "",IDC_BUTTON_PLAY,"Button",BS_OWNERDRAW | WS_TABSTOP,8,309,16,16
+    CONTROL         "",IDC_BUTTON_PAUSE,"Button",BS_OWNERDRAW | WS_TABSTOP,24,309,16,16
+    CONTROL         "",IDC_BUTTON_STOP,"Button",BS_OWNERDRAW | WS_TABSTOP,40,309,16,16
+    CONTROL         "",IDC_BUTTON_TOBEGIN,"Button",BS_OWNERDRAW | WS_TABSTOP,56,309,16,16
+    CONTROL         "",IDC_BUTTON_TOEND,"Button",BS_OWNERDRAW | WS_TABSTOP,72,309,16,16
+    CONTROL         "",IDC_BUTTON_BACKONCE,"Button",BS_OWNERDRAW | WS_TABSTOP,88,309,16,16
+    CONTROL         "",IDC_BUTTON_ONEBYONE,"Button",BS_OWNERDRAW | WS_TABSTOP,104,309,16,16
+    CONTROL         "",IDC_BUTTON_SLOW,"Button",BS_OWNERDRAW | WS_TABSTOP,120,309,16,16
+    CONTROL         "",IDC_BUTTON_FAST,"Button",BS_OWNERDRAW | WS_TABSTOP,136,309,16,16
+    CONTROL         "",IDC_BUTTON_PICTURE,"Button",BS_OWNERDRAW | WS_TABSTOP,213,309,16,16
+    CONTROL         "Slider2",IDC_SLIDER_AUDIO,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,337,309,63,9
+    CONTROL         "",IDC_BUTTON_AUDIO,"Button",BS_OWNERDRAW | WS_TABSTOP,321,309,16,17
+    CONTROL         "",IDC_BUTTON_BACKWORD,"Button",BS_OWNERDRAW | WS_TABSTOP,165,309,16,16
+    CONTROL         "",IDC_BUTTON_FORWORD,"Button",BS_OWNERDRAW | WS_TABSTOP,181,309,16,16
+    CONTROL         "",IDC_LIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOSCROLL | LVS_NOSORTHEADER | WS_TABSTOP,393,1,97,290,WS_EX_ACCEPTFILES | WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+    CONTROL         "Slider2",IDC_SLIDER_WAVE,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,337,317,63,9
+    CONTROL         "",IDC_BUTTON_FULL,"Button",BS_OWNERDRAW | WS_TABSTOP,474,309,16,17
+END
+
+IDD_FORMVIEW DIALOGEX 0, 0, 185, 93
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+FONT 9, "宋体", 400, 0, 0x0
+BEGIN
+    LTEXT           "TODO: 布局窗体视图",IDC_STATIC,55,42,74,8
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -283,17 +289,6 @@ BEGIN
         RIGHTMARGIN, 217
         TOPMARGIN, 7
         BOTTOMMARGIN, 66
-    END
-
-    IDD_PLAYDEMO_DIALOG, DIALOG
-    BEGIN
-        RIGHTMARGIN, 490
-        HORZGUIDE, 284
-        HORZGUIDE, 305
-        HORZGUIDE, 306
-        HORZGUIDE, 309
-        HORZGUIDE, 326
-        HORZGUIDE, 330
     END
 
     IDD_OPENFILE, DIALOG
@@ -368,6 +363,17 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 54
     END
+
+    IDD_PLAYDEMO_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 490
+        HORZGUIDE, 284
+        HORZGUIDE, 305
+        HORZGUIDE, 306
+        HORZGUIDE, 309
+        HORZGUIDE, 326
+        HORZGUIDE, 330
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -395,6 +401,8 @@ IDB_BITMAP_SCREENSHOT   BITMAP                  "res\\ScreenShot.bmp"
 IDB_BITMAP_FULL         BITMAP                  "res\\bmp00001.bmp"
 IDB_BITMAP_LOGO         BITMAP                  "res\\logo.bmp"
 IDB_BITMAP_SHOWLIST     BITMAP                  "res\\bmp00002.bmp"
+IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -473,10 +481,142 @@ BEGIN
         MENUITEM "Anti-Aliasing",               ID_SETTING_ANTI
         MENUITEM "颜色设置",                        ID_SETTING_COLOLR
     END
-    MENUITEM "统计分析",                        0
+    MENUITEM "统计分析",                        ID_32862
     POPUP "帮助"
     BEGIN
         MENUITEM "有关",                          IDM_HELP_ABOUT
+    END
+END
+
+IDR_THEME_MENU MENU 
+BEGIN
+    MENUITEM "Office 2007 (蓝色样式)(&B)",      ID_VIEW_APPLOOK_OFF_2007_BLUE
+    MENUITEM "Office 2007 (黑色样式)(&L)",      ID_VIEW_APPLOOK_OFF_2007_BLACK
+    MENUITEM "Office 2007 (银色样式)(&S)",      ID_VIEW_APPLOOK_OFF_2007_SILVER
+    MENUITEM "Office 2007 (水绿色样式)(&A)",     ID_VIEW_APPLOOK_OFF_2007_AQUA
+END
+
+IDR_POPUP_EDIT MENU 
+BEGIN
+    POPUP "编辑"
+    BEGIN
+        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
+        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
+        MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
+    END
+END
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "数据回放"
+    BEGIN
+        MENUITEM "打开",                          IDM_FILE_OPEN
+        MENUITEM "关闭",                          IDM_FILE_CLOSE
+    END
+    POPUP "系统设置"
+    BEGIN
+        MENUITEM "截图设置",                        IDM_SETTING_SNAPPIC
+        MENUITEM "Locate",                      IDM_SETTING_LOCATE
+        MENUITEM "视频截取",                        IDM_SETTING_CUTFILE
+        MENUITEM "Overlay mode",                IDM_SETTING_OVERLAY
+        MENUITEM "媒体信息",                        IDM_SETTING_MEDIAINFO
+        MENUITEM "Vertical Sync",               IDM_SETTING_VERTICALSYNC
+        MENUITEM "IVS",                         IDM_SETTING_IVS
+        POPUP "IVS Enable"
+        BEGIN
+            MENUITEM "Rule",                        ID_IVSENABLE_RULE
+            MENUITEM "Track",                       ID_IVSENABLE_TRACK
+            MENUITEM "POS/Event",                   ID_IVSENABLE_POSEVENT
+            MENUITEM "CrowdDistriHeat",             ID_IVSENABLE_CROWDDISTRIHEAT
+        END
+        MENUITEM "Start Fisheye",               ID_SETTING_START_FISHEYE
+        POPUP "Fisheye View"
+        BEGIN
+            MENUITEM "Ceil_1p+1",                   ID_FISHEYEVIEW_CEIL_1PPLUS1
+            MENUITEM "Ceil_1+3",                    ID_FISHEYEVIEW_CEIL_1PLUS3
+            MENUITEM "Floor_1+2",                   ID_FISHEYEVIEW_FLOOR_1PLUS2
+            MENUITEM "Floor_1p+6",                  ID_FISHEYEVIEW_FLOOR_1PPLUS6
+            MENUITEM "Floor_2p",                    ID_FISHEYEVIEW_FLOOR_2P
+            MENUITEM "Wall_1p+8",                   ID_FISHEYEVIEW_WALL_1PPLUS8
+            POPUP "SEMI_SHPERE"
+            BEGIN
+                MENUITEM "Ceil",                        ID_SEMI_CEIL
+                MENUITEM "Floor",                       ID_SEMI_FLOOR
+                MENUITEM "Wall",                        ID_SEMI_WALL
+            END
+            POPUP "CYLINDER"
+            BEGIN
+                MENUITEM "Ceil",                        ID_CYLINDER_CEIL
+                MENUITEM "Floor",                       ID_CYLINDER_FLOOR
+                MENUITEM "Wall",                        ID_CYLINDER_WALL
+            END
+            POPUP "LITTLE_PLANET"
+            BEGIN
+                MENUITEM "Ceil",                        ID_LITTLE_CEIL
+                MENUITEM "Floor",                       ID_LITTLE_FLOOR
+                MENUITEM "Wall",                        ID_LITTLE_WALL
+            END
+            MENUITEM "360_SHPERE",                  ID_FISHEYEVIEW_360_SHPERE
+            MENUITEM "360_CYLINDER",                ID_FISHEYEVIEW_360_CYLINDER
+        END
+        MENUITEM "Decode Engine",               ID_SETTING_DECODEENGINE
+        POPUP "视频转向"
+        BEGIN
+            MENUITEM "0°",                          ID_ROTATEANGLE_0
+            MENUITEM "90°",                         ID_ROTATEANGLE_90
+            MENUITEM "180°",                        ID_ROTATEANGLE_180
+            MENUITEM "270°",                        ID_ROTATEANGLE_270
+            MENUITEM "Left",                        ID_ROTATEANGLE_ROTATELEFT
+            MENUITEM "Right",                       ID_ROTATEANGLE_ROTATERIGHT
+        END
+        POPUP "Throw Frame"
+        BEGIN
+            MENUITEM "No Throw",                    ID_THROW_NO
+            MENUITEM "Default Throw",               ID_THROW_DEFAULT
+            MENUITEM "Adaption Throw",              ID_THROW_ADAPTION
+        END
+        MENUITEM "Anti-Aliasing",               ID_SETTING_ANTI
+        MENUITEM "颜色设置",                        ID_SETTING_COLOLR
+    END
+    MENUITEM "统计分析",                        ID_32862
+    POPUP "文件(&F)"
+    BEGIN
+        MENUITEM "退出(&X)",                      ID_APP_EXIT
+    END
+    POPUP "编辑(&E)"
+    BEGIN
+        MENUITEM "撤消(&U)\tCtrl+Z",              ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
+        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
+        MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "视图(&V)"
+    BEGIN
+        POPUP "工具栏和停靠窗口(&T)"
+        BEGIN
+            MENUITEM "<占位符>",                       ID_VIEW_TOOLBAR
+        END
+        MENUITEM "状态栏(&S)",                     ID_VIEW_STATUS_BAR
+        POPUP "应用程序外观(&A)"
+        BEGIN
+            MENUITEM "Windows 2000(&2)",            ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office XP(&X)",               ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "Windows XP(&W)",              ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 2003(&3)",             ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio.NET 2005(&5)",  ID_VIEW_APPLOOK_VS_2005
+            POPUP "Office 2007(&7)"
+            BEGIN
+                MENUITEM "蓝色样式(&B)",                    ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "黑色样式(&L)",                    ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "银色样式(&S)",                    ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "水绿色样式(&A)",                   ID_VIEW_APPLOOK_OFF_2007_AQUA
+            END
+        END
+    END
+    POPUP "帮助(&H)"
+    BEGIN
+        MENUITEM "关于 CPlayDemoApp(&A)...",      ID_APP_ABOUT
     END
 END
 
@@ -493,13 +633,48 @@ BEGIN
     VK_F9,          ID_ACCELERATOR_F9,      VIRTKEY, NOINVERT
 END
 
+IDR_MAINFRAME ACCELERATORS 
+BEGIN
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// PNG
+// Toolbar
 //
 
-IDB_PNG1                PNG                     "E:\\Git\\DuiPlayer\\Release\\skin\\btn_playlist_hide.png"
+IDR_MAINFRAME_256 TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
+IDR_MAINFRAME TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW
+    SEPARATOR
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -508,7 +683,96 @@ IDB_PNG1                PNG                     "E:\\Git\\DuiPlayer\\Release\\sk
 
 STRINGTABLE 
 BEGIN
+    IDP_OLE_INIT_FAILED     "OLE 初始化失败。请确保 OLE 库是正确的版本。"
     IDS_ABOUTBOX            "About"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_STATUS_PANE1        "窗格 1"
+    IDS_STATUS_PANE2        "窗格 2"
+    IDS_TOOLBAR_STANDARD    "标准"
+    IDS_TOOLBAR_CUSTOMIZE   "自定义..."
+END
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "PlayDemo"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_EDIT_MENU           "编辑"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "PlayDemo"
+    AFX_IDS_IDLEMESSAGE     "就绪"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "清除选定内容\n清除"
+    ID_EDIT_CLEAR_ALL       "清除全部内容\n全部清除"
+    ID_EDIT_COPY            "复制选定内容并将其放到剪贴板上\n复制"
+    ID_EDIT_CUT             "剪切选定内容并将其放到剪贴板上\n剪切"
+    ID_EDIT_FIND            "查找指定的文本\n查找"
+    ID_EDIT_PASTE           "插入剪贴板内容\n粘贴"
+    ID_EDIT_REPEAT          "重复上一操作\n重复"
+    ID_EDIT_REPLACE         "用其他文本替换特定的文本\n替换"
+    ID_EDIT_SELECT_ALL      "选定整个文档\n全选"
+    ID_EDIT_UNDO            "撤消上一操作\n撤消"
+    ID_EDIT_REDO            "恢复上次撤消的操作\n重做"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_SPLIT         "将活动窗口拆分为多个窗格\n拆分"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "显示程序信息、版本号和版权\n关于"
+    ID_APP_EXIT             "退出应用程序；提示保存文档\n退出"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "切换到下一个窗格\n下一窗格"
+    ID_PREV_PANE            "切换回上一个窗格\n上一窗格"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_STATUS_BAR      "显示或隐藏状态栏\n切换状态栏"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "更改窗口大小"
+    AFX_IDS_SCMOVE          "更改窗口位置"
+    AFX_IDS_SCMINIMIZE      "将窗口缩小为图标"
+    AFX_IDS_SCMAXIMIZE      "使窗口最大化显示"
+    AFX_IDS_SCNEXTWINDOW    "切换到下一个文档窗口"
+    AFX_IDS_SCPREVWINDOW    "切换到前一个文档窗口"
+    AFX_IDS_SCCLOSE         "关闭活动窗口并提示保存文档"
+END
+
+STRINGTABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "将窗口恢复到正常大小"
+    AFX_IDS_SCTASKLIST      "激活任务列表"
 END
 
 #endif    // 中文(中华人民共和国) resources

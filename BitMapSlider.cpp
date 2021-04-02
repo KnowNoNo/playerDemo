@@ -440,7 +440,7 @@ BOOL CBitmapSlider::SetBitmapChannel(
 	}
 
 	// Change size of control as same as the bitmap.
-	SetWindowPos(NULL, 0, 0, m_nWidth, m_nHeight, SWP_NOZORDER | SWP_NOMOVE);
+	if(::IsWindow(m_hWnd) )	SetWindowPos(NULL, 0, 0, m_nWidth, m_nHeight, SWP_NOZORDER | SWP_NOMOVE);
 
 	GetClientRect( &m_rect );
 

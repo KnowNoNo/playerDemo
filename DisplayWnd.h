@@ -8,7 +8,7 @@
 //
 
 #include "DlgMultPlay.h"
-
+#include "resource.h"
 /////////////////////////////////////////////////////////////////////////////
 // CDisplayWnd dialog
 class CDisplayWnd : public CDialog

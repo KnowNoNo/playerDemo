@@ -9,7 +9,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 // CDlgMultPlay dialog
-
+#include "resource.h"
 class CDlgMultPlay : public CDialog
 {
 // Construction

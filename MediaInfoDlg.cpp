@@ -54,7 +54,7 @@ BOOL CMediaInfoDlg::OnInitDialog()
 	memset(&tMediaInfo, 0, sizeof(MEDIA_INFO));
 	CPlayer::Instance()->GetQueryInfo(PLAY_CMD_GetMediaInfo, (char *)&tMediaInfo, sizeof(MEDIA_INFO), &len);
 
-	CString csMediaInfo = "";
+	CString csMediaInfo = L"";
 
 	if (tMediaInfo.lFrameRate != 0)
 	{
