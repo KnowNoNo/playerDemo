@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CDlgSetColor, CDialog)
 	//{{AFX_MSG_MAP(CDlgSetColor)
 	ON_WM_HSCROLL()
 	//}}AFX_MSG_MAP
+	ON_BN_CLICKED(IDC_BUTTON_RESET, &CDlgSetColor::OnBnClickedButtonReset)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -103,4 +104,16 @@ BOOL CDlgSetColor::PreTranslateMessage(MSG* pMsg)
 	else if(pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_ESCAPE)
 		return 1;
 	return CDialog::PreTranslateMessage(pMsg);
+}
+
+void CDlgSetColor::OnBnClickedButtonReset()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	m_procBrightness.SetPos(64);
+	m_procContrast.SetPos(64);
+	m_procSaturation.SetPos(64);
+	m_procHue.SetPos(64);
+
+	CPlayer::Instance()->SetColor(64, 64, 64, 64);
+
 }

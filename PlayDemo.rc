@@ -68,6 +68,12 @@ END
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "G:\\视频回放demo3\\res\\PlayDemo.ico"
 IDI_ICON1               ICON                    "res\\full_screen.ico"
+IDI_FILE_VIEW_HC        ICON                    "res\\file_view_hc.ico"
+IDI_FILE_VIEW           ICON                    "res\\file_view.ico"
+IDI_CLASS_VIEW_HC       ICON                    "res\\class_view_hc.ico"
+IDI_CLASS_VIEW          ICON                    "res\\class_view.ico"
+IDI_PROPERTIES_WND      ICON                    "res\\properties_wnd.ico"
+IDI_PROPERTIES_WND_HC   ICON                    "res\\properties_wnd_hc.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -103,7 +109,7 @@ FONT 9, "宋体"
 BEGIN
 END
 
-IDD_DIALOG_SETCOLOR DIALOGEX 0, 0, 136, 84
+IDD_DIALOG_SETCOLOR DIALOGEX 0, 0, 159, 100
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW
 FONT 9, "宋体", 0, 0, 0x1
@@ -116,6 +122,7 @@ BEGIN
     LTEXT           "亮度",IDC_STATIC,7,25,42,12
     LTEXT           "对比",IDC_STATIC,7,43,42,12
     LTEXT           "色调",IDC_STATIC,7,60,42,12
+    PUSHBUTTON      "恢复默认",IDC_BUTTON_RESET,110,79,42,14
 END
 
 IDD_DIALOG_PICTURE DIALOGEX 0, 0, 184, 83
@@ -207,9 +214,9 @@ EXSTYLE WS_EX_ACCEPTFILES
 MENU IDR_MENU
 FONT 9, "宋体", 0, 0, 0x1
 BEGIN
-    CONTROL         "Slider1",IDC_SLIDER_PROC,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,0,294,490,15
-    CONTROL         "",IDC_STATIC_MSG,"Static",SS_LEFTNOWORDWRAP | SS_SUNKEN | WS_GROUP,0,330,490,17
-    LTEXT           "",IDC_STATIC_PLAY,0,1,393,290
+    CONTROL         "Slider1",IDC_SLIDER_PROC,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,0,294,491,15
+    CONTROL         "",IDC_STATIC_MSG,"Static",SS_LEFTNOWORDWRAP | SS_ENDELLIPSIS | WS_BORDER | WS_GROUP,0,330,491,17
+    LTEXT           "",IDC_STATIC_PLAY,1,0,392,291,WS_BORDER
     CONTROL         "",IDC_BUTTON_PLAY,"Button",BS_OWNERDRAW | WS_TABSTOP,8,309,16,16
     CONTROL         "",IDC_BUTTON_PAUSE,"Button",BS_OWNERDRAW | WS_TABSTOP,24,309,16,16
     CONTROL         "",IDC_BUTTON_STOP,"Button",BS_OWNERDRAW | WS_TABSTOP,40,309,16,16
@@ -224,16 +231,33 @@ BEGIN
     CONTROL         "",IDC_BUTTON_AUDIO,"Button",BS_OWNERDRAW | WS_TABSTOP,321,309,16,17
     CONTROL         "",IDC_BUTTON_BACKWORD,"Button",BS_OWNERDRAW | WS_TABSTOP,165,309,16,16
     CONTROL         "",IDC_BUTTON_FORWORD,"Button",BS_OWNERDRAW | WS_TABSTOP,181,309,16,16
-    CONTROL         "",IDC_LIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOSCROLL | LVS_NOSORTHEADER | WS_TABSTOP,393,1,97,290,WS_EX_ACCEPTFILES | WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
+    CONTROL         "",IDC_LIST2,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_NOSCROLL | LVS_NOSORTHEADER | WS_TABSTOP,394,1,97,290,WS_EX_ACCEPTFILES | WS_EX_TRANSPARENT | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE
     CONTROL         "Slider2",IDC_SLIDER_WAVE,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,337,317,63,9
-    CONTROL         "",IDC_BUTTON_FULL,"Button",BS_OWNERDRAW | WS_TABSTOP,474,309,16,17
+    CONTROL         "",IDC_BUTTON_FULL,"Button",BS_OWNERDRAW | WS_TABSTOP,475,309,16,17
+    CONTROL         "",IDC_BUTTON_PLAYLIST,"Button",BS_OWNERDRAW | WS_TABSTOP,455,309,16,17
 END
 
-IDD_FORMVIEW DIALOGEX 0, 0, 185, 93
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
+IDD_FORMVIEW_ANALYSIS DIALOGEX 0, 0, 571, 357
+STYLE DS_SETFONT | WS_CHILD
 FONT 9, "宋体", 400, 0, 0x0
 BEGIN
-    LTEXT           "TODO: 布局窗体视图",IDC_STATIC,55,42,74,8
+    GROUPBOX        "表格设置",IDC_STATIC,325,308,246,49,0,WS_EX_TRANSPARENT
+    CONTROL         "Show Data &Labels:",IDC_DATA_LABELS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,333,321,76,9
+    LTEXT           "文本 &Position:",IDC_STATIC,452,323,35,8
+    COMBOBOX        IDC_DATA_LABEL_POSITION,488,320,71,110,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "风格 Type: ",IDC_STATIC,451,340,35,8
+    COMBOBOX        IDC_FILL_GRADIENT_TYPE,488,338,71,229,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_CHART_MONTH,"Static",SS_GRAYRECT,304,13,267,130
+    CONTROL         "",IDC_CHART_HOUR,"Static",SS_GRAYRECT,304,167,267,130
+    CONTROL         "",IDC_CHART_DAY,"Static",SS_GRAYRECT,0,167,267,130
+    CONTROL         "",IDC_CHART_YEAR,"Static",SS_GRAYRECT,0,13,267,130
+    CONTROL         "",IDC_DATETIMEP_START,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,33,321,73,15
+    GROUPBOX        "时间设置",IDC_STATIC,0,308,246,49
+    RTEXT           "起始：",IDC_STATIC,5,323,29,13
+    CONTROL         "",IDC_DATETIME_ASK,"SysDateTimePick32",DTS_RIGHTALIGN | WS_TABSTOP,159,321,73,15
+    RTEXT           "查询：",IDC_STATIC,130,323,29,13
+    LTEXT           "颜色 &Position:",IDC_STATIC,333,342,35,8
+    COMBOBOX        IDC_COLOR_TYPE,369,338,71,110,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
 END
 
 
@@ -311,9 +335,9 @@ BEGIN
     IDD_DIALOG_SETCOLOR, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 129
+        RIGHTMARGIN, 152
         TOPMARGIN, 7
-        BOTTOMMARGIN, 77
+        BOTTOMMARGIN, 93
     END
 
     IDD_DIALOG_PICTURE, DIALOG
@@ -366,7 +390,6 @@ BEGIN
 
     IDD_PLAYDEMO_DIALOG, DIALOG
     BEGIN
-        RIGHTMARGIN, 490
         HORZGUIDE, 284
         HORZGUIDE, 305
         HORZGUIDE, 306
@@ -401,8 +424,27 @@ IDB_BITMAP_SCREENSHOT   BITMAP                  "res\\ScreenShot.bmp"
 IDB_BITMAP_FULL         BITMAP                  "res\\bmp00001.bmp"
 IDB_BITMAP_LOGO         BITMAP                  "res\\logo.bmp"
 IDB_BITMAP_SHOWLIST     BITMAP                  "res\\bmp00002.bmp"
+IDB_SORT_24             BITMAP                  "res\\sort_hc.bmp"
+IDB_PAGES_SMALL_HC      BITMAP                  "res\\pages_small_hc.bmp"
+IDB_PAGES_SMALL         BITMAP                  "res\\pages_small.bmp"
+IDB_PAGES_HC            BITMAP                  "res\\pages_hc.bmp"
+IDB_PAGES               BITMAP                  "res\\pages.bmp"
+IDB_NAVIGATION_LARGE_HC BITMAP                  "res\\nav_large_hc.bmp"
+IDB_NAVIGATION_LARGE    BITMAP                  "res\\nav_large.bmp"
+IDB_MENU_IMAGES_24      BITMAP                  "res\\menuimages_hc.bmp"
+IDB_FILE_VIEW_24        BITMAP                  "res\\fileview_hc.bmp"
+IDB_FILE_VIEW           BITMAP                  "res\\fileview.bmp"
+IDB_EXPLORER_24         BITMAP                  "res\\explorer_hc.bmp"
+IDB_CLASS_VIEW_24       BITMAP                  "res\\classview_hc.bmp"
+IDB_CLASS_VIEW          BITMAP                  "res\\classview.bmp"
+IDR_SORT                BITMAP                  "res\\sort.bmp"
+IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+IDR_EXPLORER            BITMAP                  "res\\explorer.bmp"
+IDB_BITMAP_PLAYLIST     BITMAP                  "res\\bmp00003.bmp"
+IDR_PROPERTIES          BITMAP                  "res\\properties.bmp"
+IDB_PROPERTIES_HC       BITMAP                  "res\\properties_hc.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -488,24 +530,6 @@ BEGIN
     END
 END
 
-IDR_THEME_MENU MENU 
-BEGIN
-    MENUITEM "Office 2007 (蓝色样式)(&B)",      ID_VIEW_APPLOOK_OFF_2007_BLUE
-    MENUITEM "Office 2007 (黑色样式)(&L)",      ID_VIEW_APPLOOK_OFF_2007_BLACK
-    MENUITEM "Office 2007 (银色样式)(&S)",      ID_VIEW_APPLOOK_OFF_2007_SILVER
-    MENUITEM "Office 2007 (水绿色样式)(&A)",     ID_VIEW_APPLOOK_OFF_2007_AQUA
-END
-
-IDR_POPUP_EDIT MENU 
-BEGIN
-    POPUP "编辑"
-    BEGIN
-        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
-        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
-        MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
-    END
-END
-
 IDR_MAINFRAME MENU 
 BEGIN
     POPUP "数据回放"
@@ -515,51 +539,8 @@ BEGIN
     END
     POPUP "系统设置"
     BEGIN
+        MENUITEM "颜色设置",                        ID_SETTING_COLOLR
         MENUITEM "截图设置",                        IDM_SETTING_SNAPPIC
-        MENUITEM "Locate",                      IDM_SETTING_LOCATE
-        MENUITEM "视频截取",                        IDM_SETTING_CUTFILE
-        MENUITEM "Overlay mode",                IDM_SETTING_OVERLAY
-        MENUITEM "媒体信息",                        IDM_SETTING_MEDIAINFO
-        MENUITEM "Vertical Sync",               IDM_SETTING_VERTICALSYNC
-        MENUITEM "IVS",                         IDM_SETTING_IVS
-        POPUP "IVS Enable"
-        BEGIN
-            MENUITEM "Rule",                        ID_IVSENABLE_RULE
-            MENUITEM "Track",                       ID_IVSENABLE_TRACK
-            MENUITEM "POS/Event",                   ID_IVSENABLE_POSEVENT
-            MENUITEM "CrowdDistriHeat",             ID_IVSENABLE_CROWDDISTRIHEAT
-        END
-        MENUITEM "Start Fisheye",               ID_SETTING_START_FISHEYE
-        POPUP "Fisheye View"
-        BEGIN
-            MENUITEM "Ceil_1p+1",                   ID_FISHEYEVIEW_CEIL_1PPLUS1
-            MENUITEM "Ceil_1+3",                    ID_FISHEYEVIEW_CEIL_1PLUS3
-            MENUITEM "Floor_1+2",                   ID_FISHEYEVIEW_FLOOR_1PLUS2
-            MENUITEM "Floor_1p+6",                  ID_FISHEYEVIEW_FLOOR_1PPLUS6
-            MENUITEM "Floor_2p",                    ID_FISHEYEVIEW_FLOOR_2P
-            MENUITEM "Wall_1p+8",                   ID_FISHEYEVIEW_WALL_1PPLUS8
-            POPUP "SEMI_SHPERE"
-            BEGIN
-                MENUITEM "Ceil",                        ID_SEMI_CEIL
-                MENUITEM "Floor",                       ID_SEMI_FLOOR
-                MENUITEM "Wall",                        ID_SEMI_WALL
-            END
-            POPUP "CYLINDER"
-            BEGIN
-                MENUITEM "Ceil",                        ID_CYLINDER_CEIL
-                MENUITEM "Floor",                       ID_CYLINDER_FLOOR
-                MENUITEM "Wall",                        ID_CYLINDER_WALL
-            END
-            POPUP "LITTLE_PLANET"
-            BEGIN
-                MENUITEM "Ceil",                        ID_LITTLE_CEIL
-                MENUITEM "Floor",                       ID_LITTLE_FLOOR
-                MENUITEM "Wall",                        ID_LITTLE_WALL
-            END
-            MENUITEM "360_SHPERE",                  ID_FISHEYEVIEW_360_SHPERE
-            MENUITEM "360_CYLINDER",                ID_FISHEYEVIEW_360_CYLINDER
-        END
-        MENUITEM "Decode Engine",               ID_SETTING_DECODEENGINE
         POPUP "视频转向"
         BEGIN
             MENUITEM "0°",                          ID_ROTATEANGLE_0
@@ -569,18 +550,81 @@ BEGIN
             MENUITEM "Left",                        ID_ROTATEANGLE_ROTATELEFT
             MENUITEM "Right",                       ID_ROTATEANGLE_ROTATERIGHT
         END
-        POPUP "Throw Frame"
-        BEGIN
-            MENUITEM "No Throw",                    ID_THROW_NO
-            MENUITEM "Default Throw",               ID_THROW_DEFAULT
-            MENUITEM "Adaption Throw",              ID_THROW_ADAPTION
-        END
-        MENUITEM "Anti-Aliasing",               ID_SETTING_ANTI
-        MENUITEM "颜色设置",                        ID_SETTING_COLOLR
+        MENUITEM SEPARATOR
+        MENUITEM "视频截取",                        IDM_SETTING_CUTFILE
     END
     MENUITEM "统计分析",                        ID_32862
     POPUP "文件(&F)"
     BEGIN
+        MENUITEM "新建(&N)\tCtrl+N",              ID_FILE_NEW
+        MENUITEM "打开(&O)...\tCtrl+O",           ID_FILE_OPEN
+        MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
+        MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
+        MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1
+        MENUITEM SEPARATOR
+        MENUITEM "退出(&X)",                      ID_APP_EXIT
+    END
+    POPUP "编辑(&E)"
+    BEGIN
+        MENUITEM "撤消(&U)\tCtrl+Z",              ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
+        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
+        MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
+    END
+    POPUP "视图(&V)"
+    BEGIN
+        POPUP "工具栏和停靠窗口(&T)"
+        BEGIN
+            MENUITEM "<占位符>",                       ID_VIEW_TOOLBAR
+        END
+        MENUITEM "状态栏(&S)",                     ID_VIEW_STATUS_BAR
+        POPUP "应用程序外观(&A)"
+        BEGIN
+            MENUITEM "Windows 2000(&2)",            ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office XP(&X)",               ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "Windows XP(&W)",              ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 2003(&3)",             ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio.NET 2005(&5)",  ID_VIEW_APPLOOK_VS_2005
+            POPUP "Office 2007(&7)"
+            BEGIN
+                MENUITEM "蓝色样式(&B)",                    ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "黑色样式(&L)",                    ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "银色样式(&S)",                    ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "水绿色样式(&A)",                   ID_VIEW_APPLOOK_OFF_2007_AQUA
+            END
+        END
+        MENUITEM "回放",                          ID_VIEW_PLAY
+        MENUITEM "分析",                          ID_VIEW_ANALYSIS
+    END
+    POPUP "帮助(&H)"
+    BEGIN
+        MENUITEM "关于 CPlayDemoApp(&A)...",      ID_APP_ABOUT
+    END
+END
+
+IDR_THEME_MENU MENU 
+BEGIN
+    MENUITEM "Office 2007 (蓝色样式)(&B)",      ID_VIEW_APPLOOK_OFF_2007_BLUE
+    MENUITEM "Office 2007 (黑色样式)(&L)",      ID_VIEW_APPLOOK_OFF_2007_BLACK
+    MENUITEM "Office 2007 (银色样式)(&S)",      ID_VIEW_APPLOOK_OFF_2007_SILVER
+    MENUITEM "Office 2007 (水绿色样式)(&A)",     ID_VIEW_APPLOOK_OFF_2007_AQUA
+END
+
+IDR_sdi4TYPE MENU 
+BEGIN
+    POPUP "文件(&F)"
+    BEGIN
+        MENUITEM "新建(&N)\tCtrl+N",              ID_FILE_NEW
+        MENUITEM "打开(&O)...\tCtrl+O",           ID_FILE_OPEN
+        MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
+        MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
+        MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                      ID_APP_EXIT
     END
     POPUP "编辑(&E)"
@@ -614,9 +658,51 @@ BEGIN
             END
         END
     END
+    POPUP "窗口(&W)"
+    BEGIN
+        MENUITEM "新建窗口(&N)",                    ID_WINDOW_NEW
+    END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "关于 CPlayDemoApp(&A)...",      ID_APP_ABOUT
+        MENUITEM "关于 PlayDemo(&A)...",          ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_SORT MENU 
+BEGIN
+    POPUP "排序"
+    BEGIN
+        MENUITEM "按字母顺序排序(&S)",                 ID_SORTING_SORTALPHABETIC
+        MENUITEM "按类型排序(&T)",                   ID_SORTING_SORTBYTYPE
+        MENUITEM "按访问排序(&E)",                   ID_SORTING_SORTBYACCESS
+        MENUITEM "按类型分组(&Y)",                   ID_SORTING_GROUPBYTYPE
+    END
+END
+
+IDR_POPUP_EXPLORER MENU 
+BEGIN
+    POPUP "资源管理器"
+    BEGIN
+        MENUITEM "打开(&O)",                      ID_OPEN
+        MENUITEM "打开方式(&W)....",                ID_OPEN_WITH
+        MENUITEM SEPARATOR
+        MENUITEM "编译(&C)",                      ID_DUMMY_COMPILE
+        MENUITEM SEPARATOR
+        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
+        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
+        MENUITEM "删除(&R)",                      ID_EDIT_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "属性(&P)...",                   ID_PROPERTIES
+    END
+END
+
+IDR_POPUP_EDIT MENU 
+BEGIN
+    POPUP "编辑"
+    BEGIN
+        MENUITEM "剪切(&T)\tCtrl+X",              ID_EDIT_CUT
+        MENUITEM "复制(&C)\tCtrl+C",              ID_EDIT_COPY
+        MENUITEM "粘贴(&P)\tCtrl+V",              ID_EDIT_PASTE
     END
 END
 
@@ -635,16 +721,19 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
-    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
-    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
 END
 
 
@@ -653,26 +742,97 @@ END
 // Toolbar
 //
 
+IDR_SORT TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_SORT_MENU
+    BUTTON      ID_NEW_FOLDER
+END
+
+IDR_MENU_IMAGES TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_WINDOW_MANAGER
+    SEPARATOR
+    BUTTON      ID_WINDOW_CASCADE
+    BUTTON      ID_WINDOW_TILE_HORZ
+    BUTTON      ID_TOOLS_MACRO
+    BUTTON      ID_SORTING_SORTALPHABETIC
+    BUTTON      ID_SORTING_SORTBYTYPE
+    BUTTON      ID_SORTING_SORTBYACCESS
+    BUTTON      ID_SORTING_GROUPBYTYPE
+END
+
 IDR_MAINFRAME_256 TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
     SEPARATOR
     BUTTON      ID_EDIT_CUT
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
+    BUTTON      ID_FILE_PRINT
     BUTTON      ID_APP_ABOUT
 END
 
 IDR_MAINFRAME TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_FILE_NEW
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_FILE_SAVE
     SEPARATOR
     BUTTON      ID_EDIT_CUT
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
+    BUTTON      ID_FILE_PRINT
     BUTTON      ID_APP_ABOUT
+END
+
+IDR_EXPLORER TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_PROPERTIES
+END
+
+IDR_PROPERTIES TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_EXPAND_ALL
+    BUTTON      ID_SORTPROPERTIES
+    BUTTON      ID_PROPERTIES1
+    BUTTON      ID_PROPERTIES2
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_FORMVIEW_ANALYSIS DLGINIT
+BEGIN
+    IDC_DATA_LABEL_POSITION, 0x403, 10, 0
+0x445b, 0x6665, 0x7561, 0x746c, 0x005d, 
+    IDC_DATA_LABEL_POSITION, 0x403, 7, 0
+0x6543, 0x746e, 0x7265, "\000" 
+    IDC_DATA_LABEL_POSITION, 0x403, 11, 0
+0x6e49, 0x6973, 0x6564, 0x4520, 0x646e, "\000" 
+    IDC_DATA_LABEL_POSITION, 0x403, 12, 0
+0x6e49, 0x6973, 0x6564, 0x4220, 0x7361, 0x0065, 
+    IDC_DATA_LABEL_POSITION, 0x403, 12, 0
+0x754f, 0x7374, 0x6469, 0x2065, 0x6e45, 0x0064, 
+    IDC_FILL_GRADIENT_TYPE, 0x403, 10, 0
+0x445b, 0x6665, 0x7561, 0x746c, 0x005d, 
+    IDC_FILL_GRADIENT_TYPE, 0x403, 12, 0
+0x6f53, 0x696c, 0x2064, 0x6f43, 0x6f6c, 0x0072, 
+    IDC_FILL_GRADIENT_TYPE, 0x403, 11, 0
+0x6f48, 0x6972, 0x6f7a, 0x746e, 0x6c61, "\000" 
+    IDC_FILL_GRADIENT_TYPE, 0x403, 9, 0
+0x6556, 0x7472, 0x6369, 0x6c61, "\000" 
+    IDC_FILL_GRADIENT_TYPE, 0x403, 6, 0
+0x6542, 0x6576, 0x006c, 
+    IDC_FILL_GRADIENT_TYPE, 0x403, 5, 0
+0x6950, 0x6570, "\000" 
+    0
 END
 
 
@@ -698,17 +858,73 @@ END
 STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "PlayDemo"
+    IDR_sdi4TYPE            "\nsdi4\nsdi4\n\n\nsdi4.Document\nsdi4.Document"
+    IDS_WINDOWS_MANAGER     "窗口(&W)..."
 END
 
 STRINGTABLE 
 BEGIN
+    IDS_FILE_VIEW           "文件视图"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_CLASS_VIEW          "类视图"
+    IDS_PROPERTIES_WND      "属性"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_MYCALENDARS         "我的日历"
+    IDS_CALENDAR            "日历"
+    IDS_SHORTCUTS           "快捷方式"
+    IDS_FOLDERS             "文件夹"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_OUTLOOKBAR          "Outlook 栏"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_EXPLORER            "资源管理器"
     IDS_EDIT_MENU           "编辑"
 END
 
 STRINGTABLE 
 BEGIN
-    AFX_IDS_APP_TITLE       "PlayDemo"
+    AFX_IDS_APP_TITLE       "sdi4"
     AFX_IDS_IDLEMESSAGE     "就绪"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "创建新文档\n新建"
+    ID_FILE_OPEN            "打开现有文档\n打开"
+    ID_FILE_CLOSE           "关闭活动文档\n关闭"
+    ID_FILE_SAVE            "保存活动文档\n保存"
+    ID_FILE_SAVE_AS         "用新名称保存活动文档\n另存为"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "打开此文档"
+    ID_FILE_MRU_FILE2       "打开此文档"
+    ID_FILE_MRU_FILE3       "打开此文档"
+    ID_FILE_MRU_FILE4       "打开此文档"
+    ID_FILE_MRU_FILE5       "打开此文档"
+    ID_FILE_MRU_FILE6       "打开此文档"
+    ID_FILE_MRU_FILE7       "打开此文档"
+    ID_FILE_MRU_FILE8       "打开此文档"
+    ID_FILE_MRU_FILE9       "打开此文档"
+    ID_FILE_MRU_FILE10      "打开此文档"
+    ID_FILE_MRU_FILE11      "打开此文档"
+    ID_FILE_MRU_FILE12      "打开此文档"
+    ID_FILE_MRU_FILE13      "打开此文档"
+    ID_FILE_MRU_FILE14      "打开此文档"
+    ID_FILE_MRU_FILE15      "打开此文档"
+    ID_FILE_MRU_FILE16      "打开此文档"
 END
 
 STRINGTABLE 
@@ -728,6 +944,11 @@ END
 
 STRINGTABLE 
 BEGIN
+    ID_WINDOW_NEW           "为活动文档打开另一个窗口\n新建窗口"
+    ID_WINDOW_ARRANGE       "在窗口底部排列图标\n排列图标"
+    ID_WINDOW_CASCADE       "以重叠方式排列窗口\n层叠窗口"
+    ID_WINDOW_TILE_HORZ     "以非重叠的平铺方式排列窗口\n平铺窗口"
+    ID_WINDOW_TILE_VERT     "以非重叠的平铺方式排列窗口\n平铺窗口"
     ID_WINDOW_SPLIT         "将活动窗口拆分为多个窗格\n拆分"
 END
 
@@ -773,6 +994,7 @@ STRINGTABLE
 BEGIN
     AFX_IDS_SCRESTORE       "将窗口恢复到正常大小"
     AFX_IDS_SCTASKLIST      "激活任务列表"
+    AFX_IDS_MDICHILD        "激活此窗口"
 END
 
 #endif    // 中文(中华人民共和国) resources

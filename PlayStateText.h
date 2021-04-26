@@ -2,12 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(AFX_PLAYSTATETEXT_H__6868F88B_5D4B_4581_8F02_77FA1D466F1A__INCLUDED_)
-#define AFX_PLAYSTATETEXT_H__6868F88B_5D4B_4581_8F02_77FA1D466F1A__INCLUDED_
-
-#if _MSC_VER > 1000
 #pragma once
-#endif // _MSC_VER > 1000
 
 
 class CPlayStateText  
@@ -24,11 +19,11 @@ public:
 	void SetRate(int nRate);
 	void SetPictureSize(int nWidth, int nHeight);
 	/*reset*/
-	void Init(CWnd* lpWnd);
+	void Init(HWND hWnd);
 	void Show();
 	void Clear();
 private:
-	CWnd*	m_lpWnd;
+	HWND	m_hWnd;
 
 	CFont *m_pFont;
 	CString m_szState;
@@ -41,5 +36,3 @@ private:
 	int m_nWidth;
 	int m_nHeight;
 };
-
-#endif // !defined(AFX_PLAYSTATETEXT_H__6868F88B_5D4B_4581_8F02_77FA1D466F1A__INCLUDED_)

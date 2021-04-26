@@ -43,7 +43,7 @@ public:
 	CChildView();	// standard constructor
 	virtual ~CChildView();
 
-	//DECLARE_EASYSIZE
+	DECLARE_EASYSIZE
 
 	// Dialog Data
 	//{{AFX_DATA(CChildView)
@@ -56,6 +56,9 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+
+	virtual void OnInitialUpdate();
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	//}}AFX_VIRTUAL
 public:
 	BOOL CreateView(LPCTSTR lpszClassName, LPCTSTR lpszWindowName,
@@ -66,6 +69,7 @@ public:
 protected:
 	HICON m_hIcon;
 	HACCEL m_hotKey;
+	BOOL   m_bInitUpdate;
 	// Generated message map functions
 	//{{AFX_MSG(CChildView)
 	//virtual BOOL OnInitDialog();
@@ -92,6 +96,10 @@ protected:
 	afx_msg void OnIVS();	
 	afx_msg void OnSettingCololr();
 
+	afx_msg void OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawSliderAudio(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawList2(NMHDR *pNMHDR, LRESULT *pResult);
+
 	afx_msg void OnSettingPrimodialsize();
 	afx_msg LRESULT OnEnctypeChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnSrcArea(WPARAM wParam, LPARAM lParam);
@@ -106,9 +114,11 @@ protected:
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnButtonStop();
 	afx_msg void OnBnClickedButtonFull();
+	afx_msg void OnBnClickedButtonPlaylist();
 	afx_msg void OnDevCase();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+
 protected:
 	void OpenFile(CString csFilePath);
 	void AdaptWindowSize( UINT cxScreen );
@@ -121,8 +131,8 @@ protected:
 	int CloseAudio();
 	int AddFileList(CString csFilePath);
 	int	SetCurIndex(int iIndex);
+	CMenu* GetMenu();
 private:
-
 
 	CNiceSliderCtrl m_sdProc;
 	CNiceSliderCtrl	m_sdAudioWave;
@@ -143,6 +153,7 @@ private:
 	CHoverButton	m_bnAudio;
 	CHoverButton	m_bnBackword;
 	CHoverButton	m_bnForword;
+	CHoverButton	m_bnPlayList;
 	CHoverButton	m_bnFull;
 
 	CListCtrl       m_listCtrl;
@@ -166,6 +177,8 @@ private:
 
 	UINT m_lastFisheyeMode;
 	CToolTipCtrl m_ContentTip;
+	
+	CMenu*	    m_pMenu;
 
 	int			m_nCurSelectItem;
 public:
@@ -219,9 +232,4 @@ public:
 private:
 	BOOL CheckUTF8NoBOM(void* pBuffer, long size);
 	EncodingType GetEncodingTypeFromStr(char *src, long len);
-public:
-	afx_msg void OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawSliderAudio(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawList2(NMHDR *pNMHDR, LRESULT *pResult);
-	virtual void OnInitialUpdate();
 };

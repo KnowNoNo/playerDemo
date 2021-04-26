@@ -49,13 +49,15 @@ CChildView::CChildView()
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	m_fTranslate = NULL;
 	m_nCurSelectItem = -1;
+	m_bInitUpdate	= FALSE;
+	m_pMenu = new CMenu;
+	m_pMenu->LoadMenu(IDR_MENU);
 }
 
 CChildView::~CChildView()
 {
-
+	delete m_pMenu;
 }
-
 
 void CChildView::DoDataExchange(CDataExchange* pDX)
 {
@@ -78,6 +80,7 @@ void CChildView::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_AUDIO, m_bnAudio);
 	DDX_Control(pDX, IDC_BUTTON_BACKWORD, m_bnBackword);
 	DDX_Control(pDX, IDC_BUTTON_FORWORD, m_bnForword);
+	DDX_Control(pDX, IDC_BUTTON_PLAYLIST, m_bnPlayList);
 	DDX_Control(pDX, IDC_BUTTON_FULL, m_bnFull);
 	DDX_Control(pDX, IDC_LIST2, m_listCtrl);
 
@@ -149,54 +152,55 @@ BEGIN_MESSAGE_MAP(CChildView, CFormView)
 	ON_BN_CLICKED(IDC_BUTTON_FULL, &CChildView::OnBnClickedButtonFull)
 	ON_COMMAND(ID_SETTING_COLOLR, &CChildView::OnSettingCololr)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST2, &CChildView::OnNMCustomdrawList2)
+	ON_BN_CLICKED(IDC_BUTTON_PLAYLIST, &CChildView::OnBnClickedButtonPlaylist)
 END_MESSAGE_MAP()
 
-//BEGIN_EASYSIZE_MAP(CChildView)
-//
-//
-//	EASYSIZE(IDC_STATIC_PLAY,ES_BORDER,ES_BORDER,
-//	ES_BORDER,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_PLAY,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_STOP,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_PAUSE,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_TOBEGIN,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_TOEND,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_BACKONCE,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_ONEBYONE,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_SLOW,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_FAST,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_BACKWORD,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_FORWORD,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_PICTURE,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	//EASYSIZE(IDC_BUTTON_SETCOLOR,ES_BORDER,IDC_STATIC_PLAY,
-//	//ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_AUDIO,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_SLIDER_AUDIO,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_SLIDER_WAVE,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_KEEPSIZE,ES_BORDER,0)
-//	EASYSIZE(IDC_SLIDER_PROC,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_BORDER,ES_BORDER,0)
-//	EASYSIZE(IDC_STATIC_MSG,ES_BORDER,IDC_STATIC_PLAY,
-//	ES_BORDER,ES_BORDER,0)
-//	EASYSIZE(IDC_BUTTON_FULL,ES_KEEPSIZE,IDC_STATIC_PLAY,
-//	ES_BORDER,ES_BORDER,0)
-//	EASYSIZE(IDC_LIST2,IDC_STATIC_PLAY,ES_BORDER,
-//	ES_BORDER,ES_BORDER,0)
-//END_EASYSIZE_MAP
+BEGIN_EASYSIZE_MAP(CChildView)
+
+
+	EASYSIZE(IDC_STATIC_PLAY,ES_BORDER,ES_BORDER,
+	ES_BORDER,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_PLAY,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_STOP,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_PAUSE,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_TOBEGIN,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_TOEND,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_BACKONCE,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_ONEBYONE,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_SLOW,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_FAST,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_BACKWORD,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_FORWORD,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_PICTURE,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	//EASYSIZE(IDC_BUTTON_SETCOLOR,ES_BORDER,IDC_STATIC_PLAY,
+	//ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_AUDIO,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_SLIDER_AUDIO,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_SLIDER_WAVE,ES_BORDER,IDC_STATIC_PLAY,
+	ES_KEEPSIZE,ES_BORDER,0)
+	EASYSIZE(IDC_SLIDER_PROC,ES_BORDER,IDC_STATIC_PLAY,
+	ES_BORDER,ES_BORDER,0)
+	EASYSIZE(IDC_STATIC_MSG,ES_BORDER,IDC_STATIC_PLAY,
+	ES_BORDER,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_FULL,ES_KEEPSIZE,IDC_STATIC_PLAY,
+	ES_BORDER,ES_BORDER,0)
+	EASYSIZE(IDC_LIST2,IDC_STATIC_PLAY,ES_BORDER,
+	ES_BORDER,ES_BORDER,0)
+END_EASYSIZE_MAP
 
 /////////////////////////////////////////////////////////////////////////////
 // CChildView message handlers
@@ -204,86 +208,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFormView::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	//// Set the icon for this dialog.  The framework does this automatically
-	////  when the application's main window is not a dialog
-	//SetIcon(m_hIcon, TRUE);			// Set big icon
-	//SetIcon(m_hIcon, FALSE);		// Set small icon
-
-	//// TODO: Add extra initialization here
-
-	//this->SetWindowText(L"乘务员疲劳检测分析系统V1.0");
-
-	///*load button bmp*/
-	//m_bnPlay.LoadBitmap(IDB_BITMAP_PLAY);
-	//m_bnPause.LoadBitmap(IDB_BITMAP_PAUSE);
-	//m_bnStop.LoadBitmap(IDB_BITMAP_STOP);
-	//m_bnToEnd.LoadBitmap(IDB_BITMAP_TOEND);
-	//m_bnBackOne.LoadBitmap(IDB_BITMAP_STEPBACK);
-	//m_bnStepOne.LoadBitmap(IDB_BITMAP_STEP);
-	//m_bnSlow.LoadBitmap(IDB_BITMAP_SLOW);
-	//m_bnFast.LoadBitmap(IDB_BITMAP_FAST);
-	//m_bnToBegin.LoadBitmap(IDB_BITMAP_TOBEGIN);
-	//m_bnPicCatch.LoadBitmap(IDB_BITMAP_CAMERA);
-	////m_bnPicCatch.LoadBitmap(IDB_BITMAP_SCREENSHOT);
-	////m_bnSetColor.LoadBitmap(IDB_BITMAP_SETCOLOR);
-	//m_bnAudio.LoadBitmap(IDB_BITMAP_SOUND);
-	//m_bnBackword.LoadBitmap(IDB_BITMAP_STEPBACK);
-	//m_bnForword.LoadBitmap(IDB_BITMAP_STEP);
-	//m_bnFull.LoadBitmap(IDB_BITMAP_FULL);
-
-	//m_sdAudioWave.SetRange(-100, 100, true);
-	//m_sdAudioWave.SetPos(0);
-	//m_sdAuidoVolume.SetRange(0, 0xffff);
-
-	//m_dlgStateText.Init(GetDlgItem(IDC_STATIC_MSG));
-
-	////LIST 
-	//m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT /*| LVS_EX_GRIDLINES*/ | LVS_EX_HEADERDRAGDROP |LVS_EX_INFOTIP  );
-	////m_listCtrl.InsertColumn(0,L"NULL",LVCFMT_LEFT,0);
-	//m_listCtrl.InsertColumn(0,L"列表",LVCFMT_LEFT,c_nListWidth-50);
-	////m_listCtrl.InsertColumn(1,L"时长",LVCFMT_LEFT,c_nListWidth/3-2);
-	////m_listCtrl.InsertColumn(3,L"时长（秒）",LVCFMT_LEFT,110);
-	//m_listCtrl.InsertColumn(1,L"位置",LVCFMT_LEFT,60);
-
-	//m_dlgDisplay.Create(IDD_DIALOG_DISPLAY, GetDlgItem(IDC_STATIC_PLAY));
-	//m_dlgDisplay.ShowWindow(SW_SHOW);
-
-
-	//ChangeUIState(Close);
-
-	//m_hotKey = ::LoadAccelerators(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDR_ACCELERATOR1));
-
-	//LANG_INIT();
-	//LANG_SETWNDSTATICTEXT(this);
-	//LANG_SETMENUSTATICTEXT(GetMenu());
-
-	//INIT_EASYSIZE;
-
-	//if (!m_ContentTip.Create(this, TTS_ALWAYSTIP))
-	//{
-	//	return FALSE;
-	//}
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PLAY), _T("播放"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PAUSE), _T("暂停"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_STOP), _T("停止"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FAST), _T("加速"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_SLOW), _T("减速"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKWORD), _T("反向播放"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FORWORD), _T("正向播放"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKONCE), _T("前一帧"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_ONEBYONE), _T("下一帧"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOEND), _T("开头"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOBEGIN), _T("结束"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PICTURE),_T("截图"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_AUDIO),_T("音量"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FULL),_T("全屏"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_AUDIO),_T("00:00"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_WAVE),_T("0"));
-	//m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_PROC),_T(""));
-
-	//m_ContentTip.Activate(TRUE);
-
 
 	//// 根据分辨率自动调节窗口大小
 	//MONITORINFO oMonitor = {};
@@ -296,15 +220,9 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CChildView::OnSysCommand(UINT nID, LPARAM lParam)
 {
-	if ((nID & 0xFFF0) == IDM_ABOUTBOX)
-	{
-		//CAboutDlg dlgAbout;
-		//dlgAbout.DoModal();
-	}
-	else
-	{
-		CFormView::OnSysCommand(nID, lParam);
-	}
+
+	CFormView::OnSysCommand(nID, lParam);
+	
 }
 
 // If you add a minimize button to your dialog, you will need the code below
@@ -354,8 +272,8 @@ void CChildView::OnOperator(UINT uID)
 
 	if ( nState == Stop )
 	{
-		CMenu* lpMenu = GetMenu();
-		lpMenu->CheckMenuItem(IDM_SETTING_IVS, MF_UNCHECKED);
+		//CMenu* lpMenu = GetMenu();
+		//lpMenu->CheckMenuItem(IDM_SETTING_IVS, MF_UNCHECKED);
 	}
 
 	/*Operation to switch status*/
@@ -455,7 +373,6 @@ void CChildView::OnFileOpen()
 	TCHAR    szFilter[]=L"DAV File(*.dav;)|*.dav;|ALL File(*.*)|*.*|";
 	CFileDialog fileDlg(TRUE , NULL , NULL , OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ALLOWMULTISELECT , szFilter ,this);
 
-
 	if(IDOK == fileDlg.DoModal())
 	{	
 		pos = fileDlg.GetStartPosition();
@@ -487,8 +404,8 @@ void CChildView::OnFileClose()
 	//UINT nFlags = MF_BYCOMMAND | (bSetCheck?MF_CHECKED:MF_UNCHECKED);
 	//GetMenu()->CheckMenuItem(IDM_SETTING_IVS,  nFlags);
 
-	CMenu* lpMenu = GetMenu();
-	lpMenu->CheckMenuItem(IDM_SETTING_IVS, MF_BYCOMMAND|MF_UNCHECKED);
+	//CMenu* lpMenu = GetMenu();
+	//lpMenu->CheckMenuItem(IDM_SETTING_IVS, MF_BYCOMMAND|MF_UNCHECKED);
 
 	ChangeUIState(Close);
 
@@ -661,30 +578,32 @@ int CChildView::ChangeMenuState(MENU_STATE nState)
 void CChildView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
 {
 	// TODO: Add your message handler code here and/or call default
-	CString csTip;
-
-	switch(GetWindowLong(pScrollBar->m_hWnd, GWL_ID))
+	if(pScrollBar)
 	{
-	case IDC_SLIDER_PROC:
-		CPlayer::Instance()->Seek(m_sdProc.GetPos());
-		break;
-	case IDC_SLIDER_AUDIO:
-		if( CPlayer::Instance()->SetAudioVolume(m_sdAuidoVolume.GetPos()) > 0)
+		CString csTip;
+		switch(GetWindowLong(pScrollBar->m_hWnd, GWL_ID))
 		{
-			csTip.Format(L"%d",m_sdAuidoVolume.GetPos());
-			m_ContentTip.UpdateTipText(csTip,GetDlgItem(IDC_SLIDER_AUDIO));
-		}
+		case IDC_SLIDER_PROC:
+			CPlayer::Instance()->Seek(m_sdProc.GetPos());
+			break;
+		case IDC_SLIDER_AUDIO:
+			if( CPlayer::Instance()->SetAudioVolume(m_sdAuidoVolume.GetPos()) > 0)
+			{
+				csTip.Format(L"%d",m_sdAuidoVolume.GetPos());
+				m_ContentTip.UpdateTipText(csTip,GetDlgItem(IDC_SLIDER_AUDIO));
+			}
 
-		break;
-	case IDC_SLIDER_WAVE:
-		if( CPlayer::Instance()->SetAudioWave(m_sdAudioWave.GetPos()) > 0)
-		{
-			csTip.Format(L"%d",m_sdAudioWave.GetPos());
-			m_ContentTip.UpdateTipText(csTip,GetDlgItem(IDC_SLIDER_WAVE));
+			break;
+		case IDC_SLIDER_WAVE:
+			if( CPlayer::Instance()->SetAudioWave(m_sdAudioWave.GetPos()) > 0)
+			{
+				csTip.Format(L"%d",m_sdAudioWave.GetPos());
+				m_ContentTip.UpdateTipText(csTip,GetDlgItem(IDC_SLIDER_WAVE));
+			}
+			break;
+		default:
+			break;
 		}
-		break;
-	default:
-		break;
 	}
 
 	CFormView::OnHScroll(nSBCode, nPos, pScrollBar);
@@ -731,10 +650,10 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 void CChildView::OnClose() 
 {
 	/* To close, send a close info. */
-	if(GetMenu()->GetMenuState(IDM_FILE_CLOSE, MF_BYCOMMAND) != MF_GRAYED)
-	{
+	//if(GetMenu()->GetMenuState(IDM_FILE_CLOSE, MF_BYCOMMAND) != MF_GRAYED)
+	//{
 		SendMessage(WM_COMMAND, IDM_FILE_CLOSE);
-	}
+	//}
 
 	CFormView::OnClose();
 }
@@ -1582,10 +1501,21 @@ void CChildView::OnFisheyeview360Cylinder()
 
 void CChildView::OnSize(UINT nType, int cx, int cy) 
 {
+/*	static BOOL s_bInit = FALSE;
+	if(m_bInitUpdate)
+	{
+		s_bInit = TRUE;
+		INIT_EASYSIZE;
+		m_bInitUpdate = FALSE;
+	}
+		
+	if(s_bInit)	*/
 	//UPDATE_EASYSIZE;
-	CFormView::OnSize(nType, cx, cy);
+
+	//CFormView::OnSize(nType, cx, cy);
 
 	CWnd* pBoder = GetDlgItem(IDC_STATIC_PLAY);
+
 	if (pBoder && pBoder->GetSafeHwnd() && ::IsWindow(m_dlgDisplay.m_hWnd))
 	{
 		CRect rBoder;
@@ -1594,6 +1524,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 		pBoder->ScreenToClient(&rBoder);
 		m_dlgDisplay.MoveWindow(&rBoder);
 	}
+
 } 
 
 void CChildView::OnAntiAliasing()
@@ -1742,6 +1673,8 @@ void CChildView::OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult)
 
 	POSITION iPos  = m_listCtrl.GetFirstSelectedItemPosition();
 	int      nItem = m_listCtrl.GetNextSelectedItem(iPos);
+
+	CWnd*p = GetDlgItem(IDC_STATIC_MSG);
 
 	if(nItem < 0 || nItem == m_nCurSelectItem)
 		return;
@@ -1900,12 +1833,11 @@ void CChildView::OnInitialUpdate()
 	// TODO: 在此添加专用代码和/或调用基类
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
+	//SetIcon(m_hIcon, TRUE);			// Set big icon
+	//SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
-
-	GetParent()->SetWindowText(L"乘务员疲劳检测分析系统V1.0");
+	GetParent()->SetWindowText(L"视频回放");
 
 	/*load button bmp*/
 	m_bnPlay.LoadBitmap(IDB_BITMAP_PLAY);
@@ -1923,14 +1855,21 @@ void CChildView::OnInitialUpdate()
 	m_bnAudio.LoadBitmap(IDB_BITMAP_SOUND);
 	m_bnBackword.LoadBitmap(IDB_BITMAP_STEPBACK);
 	m_bnForword.LoadBitmap(IDB_BITMAP_STEP);
+	m_bnPlayList.LoadBitmap(IDB_BITMAP_SHOWLIST);
 	m_bnFull.LoadBitmap(IDB_BITMAP_FULL);
 
 	m_sdAudioWave.SetRange(-100, 100, true);
 	m_sdAudioWave.SetPos(0);
 	m_sdAuidoVolume.SetRange(0, 0xffff);
 
-	m_dlgStateText.Init(GetDlgItem(IDC_STATIC_MSG));
+	m_dlgStateText.Init(GetDlgItem(IDC_STATIC_MSG)->GetSafeHwnd());
+	//CWnd* pW= GetDlgItem(IDC_STATIC_MSG);
 
+
+	TCHAR szText[256] = {0};
+	swprintf(szText, L"1");
+	//pW->SetWindowText(szText);
+		
 	//LIST 
 	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT /*| LVS_EX_GRIDLINES*/ | LVS_EX_HEADERDRAGDROP |LVS_EX_INFOTIP  );
 	//m_listCtrl.InsertColumn(0,L"NULL",LVCFMT_LEFT,0);
@@ -1942,25 +1881,13 @@ void CChildView::OnInitialUpdate()
 	m_dlgDisplay.Create(IDD_DIALOG_DISPLAY, GetDlgItem(IDC_STATIC_PLAY));
 	m_dlgDisplay.ShowWindow(SW_SHOW);
 	
-	////移除setting  
-	//int arrRMSetting[14] = {1,3,4,5,6,7,8,9,10,12,13};
-	//CMenu *pMenu = GetMenu()->GetSubMenu(1);
-
-	//for(int i=0;i<sizeof(arrRMSetting)/sizeof(arrRMSetting[0]);i++)
-	//{
-	//	pMenu->RemoveMenu(arrRMSetting[i]-i,MF_BYPOSITION);
-	//	int nNum = pMenu->GetMenuItemCount();
-	//}
-
 	ChangeUIState(Close);
 
 	m_hotKey = ::LoadAccelerators(AfxGetInstanceHandle(),MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
 	LANG_INIT();
 	LANG_SETWNDSTATICTEXT(this);
-	//LANG_SETMENUSTATICTEXT(GetMenu());
-
-	//INIT_EASYSIZE;
+	LANG_SETMENUSTATICTEXT(GetMenu());
 
 	if (!m_ContentTip.Create(this, TTS_ALWAYSTIP))
 	{
@@ -1975,15 +1902,53 @@ void CChildView::OnInitialUpdate()
 	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FORWORD), _T("正向播放"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_BACKONCE), _T("前一帧"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_ONEBYONE), _T("下一帧"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOEND), _T("开头"));
-	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOBEGIN), _T("结束"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOEND), _T("结束"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_TOBEGIN), _T("开头"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PICTURE),_T("截图"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_AUDIO),_T("音量"));
+	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_PLAYLIST),_T("开关播放列表"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_BUTTON_FULL),_T("全屏"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_AUDIO),_T("00:00"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_WAVE),_T("0"));
 	m_ContentTip.AddTool(GetDlgItem(IDC_SLIDER_PROC),_T(""));
 
 	m_ContentTip.Activate(TRUE);
+
+	
+	//AfxGetMainWnd()->SendMessage(WM_SIZE,0,MAKELPARAM(700,800));
+	INIT_EASYSIZE;
+	//m_bInitUpdate = TRUE;	
+	CRect rc;
+	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
+	GetClientRect(&rc);
 	return;
+}
+
+BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
+{
+	// TODO: 在此添加专用代码和/或调用基类
+
+	return CFormView::PreCreateWindow(cs);
+}
+CMenu* CChildView::GetMenu()
+{
+	return m_pMenu;
+}
+
+void CChildView::OnBnClickedButtonPlaylist()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	static BOOL bShow = TRUE;
+	
+	CRect rcList,rcClient,rc;
+	m_listCtrl.GetWindowRect(&rcList);
+	GetClientRect(&rcClient);
+	
+	rc.SetRect(0,0,rcClient.Width()-(bShow?0:rcList.Width()),rcList.Height());
+	GetDlgItem(IDC_STATIC_PLAY)->MoveWindow(rc);
+	m_dlgDisplay.MoveWindow(&rc);
+	//GetDlgItem(IDC_STATIC_PLAY)->SetWindowPos(&wndTop,0,0,rcClient.Width()-(bShow?0:rcList.Width()),0,SWP_NOZORDER|SWP_NOMOVE);
+	
+	m_listCtrl.ShowWindow(bShow?SW_HIDE:SW_SHOW);
+	bShow ^= 1;
 }

@@ -6,7 +6,12 @@
 #include "PlayDemoDlg.h"
 
 #include "MainFrm.h"
+#include "ChildFrm.h"
+#include "PlayDemoDoc.h"
+//#include "PlayDemoView.h"
 
+#include "ChildView.h"
+#include "AnalysisView.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
@@ -22,6 +27,9 @@ BEGIN_MESSAGE_MAP(CPlayDemoApp, CWinAppEx)
 		//    DO NOT EDIT what you see in these blocks of generated code!
 	//}}AFX_MSG
 	ON_COMMAND(ID_APP_ABOUT, &CPlayDemoApp::OnAppAbout)
+	// 基于文件的标准文档命令
+	ON_COMMAND(ID_FILE_NEW, &CPlayDemoApp::OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -63,6 +71,13 @@ BOOL CPlayDemoApp::InitInstance()
 		return FALSE;
 	}
 	AfxEnableControlContainer();
+
+//#ifdef _AFXDLL
+//	Enable3dControls();			// Call this when using MFC in a shared DLL
+//#else
+//	Enable3dControlsStatic();	// Call this when linking to MFC statically
+//#endif
+
 	// 标准初始化
 	// 如果未使用这些功能并希望减小
 	// 最终可执行文件的大小，则应移除下列
@@ -71,8 +86,10 @@ BOOL CPlayDemoApp::InitInstance()
 	// TODO: 应适当修改该字符串，
 	// 例如修改为公司或组织名
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+	LoadStdProfileSettings(4);  // 加载标准 INI 文件选项(包括 MRU)
 
 	InitContextMenuManager();
+	InitShellManager();
 
 	InitKeyboardManager();
 
@@ -86,43 +103,60 @@ BOOL CPlayDemoApp::InitInstance()
 	// 对象，然后将其设置为应用程序的主窗口对象
 
 
-	//CPlayDemoDlg dlg;
-	//m_pMainWnd = &dlg;
-	//int nResponse = dlg.DoModal();
-	//if (nResponse == IDOK)
-	//{
-	//	// TODO: Place code here to handle when the dialog is
-	//	//  dismissed with OK
-	//}
-	//else if (nResponse == IDCANCEL)
-	//{
-	//	// TODO: Place code here to handle when the dialog is
-	//	//  dismissed with Cancel
-	//}
-	// Since the dialog has been closed, return FALSE so that we exit the
-	//  application, rather than start the application's message pump.
-	//return FALSE;
-
+	// 注册应用程序的文档模板。文档模板
+	// 将用作文档、框架窗口和视图之间的连接
+	m_pPlay = new CMultiDocTemplate(IDR_MAINFRAME,
+		RUNTIME_CLASS(CPlayDemoDoc),
+		RUNTIME_CLASS(CChildFrame), // 自定义 MDI 子框架
+		RUNTIME_CLASS(CChildView));
+	if (!m_pPlay)
+		return FALSE;
+	AddDocTemplate(m_pPlay);
+		
+	m_pAnalysis = new CMultiDocTemplate(IDR_MAINFRAME,
+		RUNTIME_CLASS(CPlayDemoDoc),
+		RUNTIME_CLASS(CChildFrame), // 自定义 MDI 子框架
+		RUNTIME_CLASS(CAnalysisView));
+	if (!m_pAnalysis)
+		return FALSE;
+	AddDocTemplate(m_pAnalysis);
 	////
 	// 若要创建主窗口，此代码将创建新的框架窗口
-	// 对象，然后将其设置为应用程序的主窗口对象
-	CMainFrame* pFrame = new CMainFrame;
-	if (!pFrame)
+	// 创建主 MDI 框架窗口
+	CMainFrame* pMainFrame = new CMainFrame;
+	if (!pMainFrame || !pMainFrame->LoadFrame(IDR_MAINFRAME))
+	{
+		delete pMainFrame;
 		return FALSE;
-	m_pMainWnd = pFrame;
-	// 创建并加载框架及其资源
-	pFrame->LoadFrame(IDR_MAINFRAME,
-		WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, NULL,
-		NULL);
-
-	// 唯一的一个窗口已初始化，因此显示它并对其进行更新
-	pFrame->ShowWindow(SW_SHOW);
-	pFrame->UpdateWindow();
+	}
+	m_pMainWnd = pMainFrame;
 	// 仅当具有后缀时才调用 DragAcceptFiles
-	//  在 SDI 应用程序中，这应在 ProcessShellCommand 之后发生
+	//  在 MDI 应用程序中，这应在设置 m_pMainWnd 之后立即发生
+
+
+	// 分析标准外壳命令、DDE、打开文件操作的命令行
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
+
+
+	// 调度在命令行中指定的命令。如果
+	// 用 /RegServer、/Register、/Unregserver 或 /Unregister 启动应用程序，则返回 FALSE。
+	if (!ProcessShellCommand(cmdInfo))
+		return FALSE;
+	// 主窗口已初始化，因此显示它并对其进行更新
+	pMainFrame->ShowWindow(m_nCmdShow);
+	pMainFrame->UpdateWindow();
+
+	m_pMainWnd->SetWindowText(L"乘务员疲劳检测分析系统V1.0");
 	return TRUE;
 }
 
+int CPlayDemoApp::ExitInstance()
+{
+	// TODO: 在此添加专用代码和/或调用基类
+	BCGCBProCleanUp();
+	return CWinAppEx::ExitInstance();
+}
 
 ///////////////
 
@@ -171,6 +205,9 @@ void CPlayDemoApp::PreLoadState()
 	bNameValid = strName.LoadString(IDS_EDIT_MENU);
 	ASSERT(bNameValid);
 	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+	bNameValid = strName.LoadString(IDS_EXPLORER);
+	ASSERT(bNameValid);
+	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EXPLORER);
 }
 
 void CPlayDemoApp::LoadCustomState()
@@ -179,6 +216,12 @@ void CPlayDemoApp::LoadCustomState()
 
 void CPlayDemoApp::SaveCustomState()
 {
+}
+
+void CPlayDemoApp::OnFileNew()
+{
+	m_pPlay->OpenDocumentFile(NULL);
+	m_pAnalysis->OpenDocumentFile(NULL);
 }
 
 // CPlayDemoApp 消息处理程序

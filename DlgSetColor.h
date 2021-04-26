@@ -44,6 +44,8 @@ protected:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedButtonReset();
 };
 
 //{{AFX_INSERT_LOCATION}}
