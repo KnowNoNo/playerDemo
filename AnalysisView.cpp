@@ -77,8 +77,9 @@ void CAnalysisView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 
 	// TODO: 在此添加专用代码和/或调用基类
-	GetParent()->SetWindowText(L"数据分析");
 
+	ResizeParentToFit();
+	
 	//
 	CComboBox	*comboButton = ((CComboBox*)GetDlgItem(IDC_COLOR_TYPE));
 	comboButton->AddString (_T("Default Theme"));
@@ -110,6 +111,40 @@ void CAnalysisView::OnInitialUpdate()
 
 	comboButton->SetCurSel(0);
 
+	//
+	CTime timeS,timeA;
+	CString csTime;
+	timeS = DATETIME_START_INIT;
+	timeA = CTime::GetCurrentTime();
+	if(timeA.GetTime() < timeS.GetTime())
+		timeA = timeS;
+
+	m_DateTimeStart.SetTime(&timeS);
+	m_DateTimeAsk.SetTime(&timeA);
+	
+	//
+	InitChart();
+	
+	//CBCGPChartBarSeries* pBarSeries1 = DYNAMIC_DOWNCAST(CBCGPChartBarSeries, pChartY->CreateSeries(_T("Fuel")));
+
+	//pBarSeries1->AddDataPoint(L"2001", 1);
+	//pBarSeries1->AddDataPoint(L"2002", 2);
+	//pBarSeries1->AddDataPoint(L"2003", 3);
+	//pBarSeries1->AddDataPoint(L"2004", 4);
+	//pBarSeries1->AddDataPoint(L"2005", 5);
+	
+	// 莫名BUG 注意此语句调用在chart控件生成后 
+	GetParent()->SetWindowText(L"数据分析");
+
+	OnUpdateChart();
+	OnPaint();
+}
+
+void CAnalysisView::InitChart()
+{
+	BCGPChartCategory category = BCGPChartColumn; //
+	BCGPChartType type = BCGP_CT_SIMPLE;
+
 	CBCGPChartVisualObject* pChartY = m_wndChartYear.GetChart();
 	ASSERT_VALID(pChartY);
 
@@ -122,42 +157,11 @@ void CAnalysisView::OnInitialUpdate()
 	CBCGPChartVisualObject* pChartH = m_wndChartHour.GetChart();
 	ASSERT_VALID(pChartH);
 
-	CTime timeS,timeA;
-	CString csTime;
-	timeS = DATETIME_START_INIT;
-	timeA = CTime::GetCurrentTime();
-	if(timeA.GetTime() < timeS.GetTime())
-		timeA = timeS;
-
-	m_DateTimeStart.SetTime(&timeS);
-	m_DateTimeAsk.SetTime(&timeA);
-
-	csTime.Format(L"%d ~ %d 年",timeS.GetYear(),timeA.GetYear());
-	
-	InitChart(pChartY,csTime);
-	
-	CBCGPChartBarSeries* pBarSeries1 = DYNAMIC_DOWNCAST(CBCGPChartBarSeries, pChartY->CreateSeries(_T("Fuel")));
-
-	pBarSeries1->AddDataPoint(L"2", 1);
-	pBarSeries1->AddDataPoint(L"2", 2);
-	pBarSeries1->AddDataPoint(L"3", 3);
-		pBarSeries1->AddDataPoint(L"3", 3);	pBarSeries1->AddDataPoint(L"3", 3);	pBarSeries1->AddDataPoint(L"3", 3);	pBarSeries1->AddDataPoint(L"3", 3);	pBarSeries1->AddDataPoint(L"3", 3);	pBarSeries1->AddDataPoint(L"3", 3);
-	////pBarSeries1->AddDataPoint(L"4", 0);
-	//pBarSeries1->AddDataPoint(L"5", 100);
-
-	pBarSeries1->SetGroupID(0);
-	//csTime.Format(L"%d",timeA.)
-	UpdateChart(pChartY);
-
-}
-
-void CAnalysisView::InitChart(CBCGPChartVisualObject* pChart,CString csTitle)
-{
-	BCGPChartCategory category = BCGPChartColumn; //
-	BCGPChartType type = BCGP_CT_SIMPLE;
-
-	pChart->SetChartType(category, type);
-	pChart->SetChartTitle(csTitle);//
+	pChartY->SetChartType(category, type);
+	pChartM->SetChartType(category, type);
+	pChartD->SetChartType(category, type);
+	pChartH->SetChartType(category, type);
+	//pChart->SetChartTitle(csTitle);//
 }
 
 void CAnalysisView::OnUpdateChart()

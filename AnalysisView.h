@@ -1,8 +1,6 @@
 #pragma once
 #include "StdAfx.h"
 
-
-
 // CAnalysisView ¥∞ÃÂ ”Õº
 #define		DATETIME_START_INIT	CTime(2021,04,16,0,0,0)
 
@@ -47,7 +45,7 @@ public:
 	int		m_nColorType;
 
 public:
-	void InitChart(CBCGPChartVisualObject* pChart,CString csTitle);
+	void InitChart();
 	void UpdateChart(CBCGPChartVisualObject* pChart);
 	
 	afx_msg void OnUpdateChart();

@@ -6,11 +6,36 @@
 
 #include "resource.h"		// main symbols
 #include "afxwinappex.h"
-
+#include "map"
 /////////////////////////////////////////////////////////////////////////////
 // CPlayDemoApp:
 // See PlayDemo.cpp for the implementation of this class
 //
+class CUnitInfo
+{
+public:
+	std::map<int,int[12][31]>	mpInfo;
+protected:
+	CRITICAL_SECTION	section;
+public:
+	CUnitInfo()
+	{
+		InitializeCriticalSection(&section);
+	}
+	~CUnitInfo()
+	{
+		DeleteCriticalSection(&section);
+	}
+	void Lock(void)
+	{
+		EnterCriticalSection(&section);
+	}
+	void Unlock(void)
+	{
+		LeaveCriticalSection(&section);
+	}
+
+};
 
 class CPlayDemoApp : public CWinAppEx
 {

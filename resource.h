@@ -174,6 +174,7 @@
 #define IDC_DATETIMEP_START             1069
 #define IDC_DATA_LABELS                 1070
 #define IDC_DATA_LABEL_POSITION         1071
+#define IDC_31                          1072
 #define IDC_SERIES_SHADOW               1075
 #define IDC_CHART_HOUR                  1079
 #define IDC_CHART_DAY                   1080
@@ -181,7 +182,7 @@
 #define IDC_DATETIME_                   1082
 #define IDC_DATETIME_ASK                1082
 #define IDC_DATA_LABEL_POSITION2        1087
-#define IDC_COLOR_TYPE					1088
+#define IDC_COLOR_TYPE                  1088
 #define IDC_BUTTON_PLAY                 2000
 #define IDC_BUTTON_PAUSE                2001
 #define IDC_BUTTON_STOP                 2002
@@ -290,7 +291,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        185
 #define _APS_NEXT_COMMAND_VALUE         32869
-#define _APS_NEXT_CONTROL_VALUE         1069
+#define _APS_NEXT_CONTROL_VALUE         1073
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

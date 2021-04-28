@@ -509,42 +509,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="PlayDemoDlg.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release PDB|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release PDB|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\PlayDemoDoc.cpp"
 				>
 			</File>
@@ -663,10 +627,6 @@
 			</File>
 			<File
 				RelativePath=".\PlayDemo.h"
-				>
-			</File>
-			<File
-				RelativePath="PlayDemoDlg.h"
 				>
 			</File>
 			<File
