@@ -7,6 +7,7 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_FORMVIEW                    102
 #define IDD_FORMVIEW_ANALYSIS           103
+#define IDD_FORMVIEW_ELEMENTS           103
 #define IDD_PLAYDEMO_DIALOG             104
 #define IDR_POPUP_EDIT                  119
 #define IDS_STATUS_PANE1                122
@@ -66,6 +67,7 @@
 #define IDR_ACCELERATOR1                177
 #define IDD_DIALOG_CONSOLE              178
 #define IDS_PROPERTIES_WND              179
+#define IDD_FORMVIEW_ANALYSIS1          179
 #define IDB_BITMAP_SCREENSHOT           180
 #define IDI_FILE_VIEW                   181
 #define IDI_FILE_VIEW_HC                182
@@ -168,21 +170,35 @@
 #define IDC_BUTTON2                     1063
 #define IDC_FILL_GRADIENT_TYPE          1064
 #define IDC_BUTTON1                     1065
+#define IDC_BTN_TEAR                    1065
 #define IDC_BUTTON_LIST                 1066
+#define IDC_BTN_MONTH                   1066
 #define IDC_BUTTON_RESET                1067
+#define IDC_BTN_DAY                     1067
 #define IDC_BUTTON_PLAYLIST             1068
+#define IDC_BTN_ALL                     1068
 #define IDC_DATETIMEP_START             1069
 #define IDC_DATA_LABELS                 1070
 #define IDC_DATA_LABEL_POSITION         1071
 #define IDC_31                          1072
+#define IDC_BTN_CAR                     1072
 #define IDC_SERIES_SHADOW               1075
 #define IDC_CHART_HOUR                  1079
+#define IDC_CHART                       1079
 #define IDC_CHART_DAY                   1080
 #define IDC_CHART_YEAR                  1081
 #define IDC_DATETIME_                   1082
 #define IDC_DATETIME_ASK                1082
+#define IDC_DATETIME_ASK3               1084
+#define IDC_CHART_AXIS_X_INTERVAL_INTERLASING 1085
+#define IDC_CHART_AXIS_Y_INTERVAL_INTERLASING 1086
 #define IDC_DATA_LABEL_POSITION2        1087
+#define IDC_CHART_AXIS_X_GRID_LINES     1087
 #define IDC_COLOR_TYPE                  1088
+#define IDC_CHART_AXIS_Y_GRID_LINES     1088
+#define IDC_CHART_SECOND_SERIES         1090
+#define IDC_CHART_CUSTOM_LINES          1093
+#define IDC_DATA_TABLE                  1176
 #define IDC_BUTTON_PLAY                 2000
 #define IDC_BUTTON_PAUSE                2001
 #define IDC_BUTTON_STOP                 2002
@@ -282,6 +298,7 @@
 #define ID_PLAY                         32866
 #define ID_VIEW_ANALYSIS                32867
 #define ID_VIEW_PLAY                    32868
+#define ID_32869                        32869
 #define ID_FILE_OPEN                    0xE101
 #define ID_FILE_SAVE                    0xE103
 
@@ -290,8 +307,8 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        185
-#define _APS_NEXT_COMMAND_VALUE         32869
-#define _APS_NEXT_CONTROL_VALUE         1073
+#define _APS_NEXT_COMMAND_VALUE         32870
+#define _APS_NEXT_CONTROL_VALUE         1074
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

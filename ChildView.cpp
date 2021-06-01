@@ -4,6 +4,8 @@
 
 #include "stdafx.h"
 #include "ChildView.h"
+#include "PlayDemo.h"
+#include "MainFrm.h"
 #include <windows.h>
 #include "LocateDlg.h"
 #include "Player.h"
@@ -153,10 +155,10 @@ BEGIN_MESSAGE_MAP(CChildView, CFormView)
 	ON_COMMAND(ID_SETTING_COLOLR, &CChildView::OnSettingCololr)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST2, &CChildView::OnNMCustomdrawList2)
 	ON_BN_CLICKED(IDC_BUTTON_PLAYLIST, &CChildView::OnBnClickedButtonPlaylist)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 BEGIN_EASYSIZE_MAP(CChildView)
-
 
 	EASYSIZE(IDC_STATIC_PLAY,ES_BORDER,ES_BORDER,
 	ES_BORDER,ES_BORDER,0)
@@ -197,6 +199,8 @@ BEGIN_EASYSIZE_MAP(CChildView)
 	EASYSIZE(IDC_STATIC_MSG,ES_BORDER,IDC_STATIC_PLAY,
 	ES_BORDER,ES_BORDER,0)
 	EASYSIZE(IDC_BUTTON_FULL,ES_KEEPSIZE,IDC_STATIC_PLAY,
+	ES_BORDER,ES_BORDER,0)
+	EASYSIZE(IDC_BUTTON_PLAYLIST,ES_KEEPSIZE,IDC_STATIC_PLAY,
 	ES_BORDER,ES_BORDER,0)
 	EASYSIZE(IDC_LIST2,IDC_STATIC_PLAY,ES_BORDER,
 	ES_BORDER,ES_BORDER,0)
@@ -575,7 +579,7 @@ int CChildView::ChangeMenuState(MENU_STATE nState)
 	return 1;
 }
 
-void CChildView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) 
+void CChildView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	// TODO: Add your message handler code here and/or call default
 	if(pScrollBar)
@@ -650,10 +654,8 @@ void CChildView::OnTimer(UINT_PTR nIDEvent)
 void CChildView::OnClose() 
 {
 	/* To close, send a close info. */
-	//if(GetMenu()->GetMenuState(IDM_FILE_CLOSE, MF_BYCOMMAND) != MF_GRAYED)
-	//{
-		SendMessage(WM_COMMAND, IDM_FILE_CLOSE);
-	//}
+
+	OnFileClose();
 
 	CFormView::OnClose();
 }
@@ -1501,16 +1503,16 @@ void CChildView::OnFisheyeview360Cylinder()
 
 void CChildView::OnSize(UINT nType, int cx, int cy) 
 {
-/*	static BOOL s_bInit = FALSE;
-	if(m_bInitUpdate)
+	static BOOL s_bInit = FALSE;
+	if(m_bInitUpdate && theApp.m_bInit)
 	{
 		s_bInit = TRUE;
 		INIT_EASYSIZE;
 		m_bInitUpdate = FALSE;
 	}
 		
-	if(s_bInit)	*/
-	//UPDATE_EASYSIZE;
+	if(s_bInit)	
+		UPDATE_EASYSIZE;
 
 	//CFormView::OnSize(nType, cx, cy);
 
@@ -1865,10 +1867,6 @@ void CChildView::OnInitialUpdate()
 	m_dlgStateText.Init(GetDlgItem(IDC_STATIC_MSG)->GetSafeHwnd());
 	//CWnd* pW= GetDlgItem(IDC_STATIC_MSG);
 
-
-	TCHAR szText[256] = {0};
-	swprintf(szText, L"1");
-	//pW->SetWindowText(szText);
 		
 	//LIST 
 	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT /*| LVS_EX_GRIDLINES*/ | LVS_EX_HEADERDRAGDROP |LVS_EX_INFOTIP  );
@@ -1888,6 +1886,8 @@ void CChildView::OnInitialUpdate()
 	LANG_INIT();
 	LANG_SETWNDSTATICTEXT(this);
 	LANG_SETMENUSTATICTEXT(GetMenu());
+
+	//INIT_EASYSIZE;
 
 	if (!m_ContentTip.Create(this, TTS_ALWAYSTIP))
 	{
@@ -1914,13 +1914,11 @@ void CChildView::OnInitialUpdate()
 
 	m_ContentTip.Activate(TRUE);
 
-	
-	//AfxGetMainWnd()->SendMessage(WM_SIZE,0,MAKELPARAM(700,800));
-	INIT_EASYSIZE;
-	//m_bInitUpdate = TRUE;	
-	CRect rc;
-	GetDlgItem(IDC_STATIC_PLAY)->GetWindowRect(&rc);
-	GetClientRect(&rc);
+	m_bInitUpdate = TRUE;	
+
+
+	((CMainFrame*)AfxGetMainWnd())->SendMessage(WM_SIZE,0,MAKELPARAM(491,348));
+	OnSize(0,491,348);
 	return;
 }
 
@@ -1944,11 +1942,19 @@ void CChildView::OnBnClickedButtonPlaylist()
 	m_listCtrl.GetWindowRect(&rcList);
 	GetClientRect(&rcClient);
 	
-	rc.SetRect(0,0,rcClient.Width()-(bShow?0:rcList.Width()),rcList.Height());
+	rc.SetRect(0,0,rcClient.Width()-(bShow?0:rcList.Width()+3),rcList.Height());
 	GetDlgItem(IDC_STATIC_PLAY)->MoveWindow(rc);
 	m_dlgDisplay.MoveWindow(&rc);
 	//GetDlgItem(IDC_STATIC_PLAY)->SetWindowPos(&wndTop,0,0,rcClient.Width()-(bShow?0:rcList.Width()),0,SWP_NOZORDER|SWP_NOMOVE);
 	
 	m_listCtrl.ShowWindow(bShow?SW_HIDE:SW_SHOW);
 	bShow ^= 1;
+}
+
+void CChildView::OnDestroy()
+{
+	CFormView::OnDestroy();
+
+	// TODO: 在此处添加消息处理程序代码
+	OnFileClose();
 }

@@ -12,11 +12,42 @@
 
 #include "ChildView.h"
 #include "AnalysisView.h"
+#include "ElementsView.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
+
+///////////////
+
+class CAboutDlg1 : public CDialog
+{
+public:
+	CAboutDlg1();
+
+	// 对话框数据
+	enum { IDD = IDD_ABOUTBOX };
+
+protected:
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
+
+	// 实现
+protected:
+	DECLARE_MESSAGE_MAP()
+};
+
+CAboutDlg1::CAboutDlg1() : CDialog(CAboutDlg1::IDD)
+{
+}
+
+void CAboutDlg1::DoDataExchange(CDataExchange* pDX)
+{
+	CDialog::DoDataExchange(pDX);
+}
+
+BEGIN_MESSAGE_MAP(CAboutDlg1, CDialog)
+END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CPlayDemoApp
@@ -40,6 +71,8 @@ CPlayDemoApp::CPlayDemoApp()
 	// TODO: add construction code here,
 	// Place all significant initialization in InitInstance
 	m_bHiColorIcons = TRUE;
+	m_pAnalyInfo	= NULL;
+	m_bInit			= FALSE;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -120,6 +153,15 @@ BOOL CPlayDemoApp::InitInstance()
 	if (!m_pAnalysis)
 		return FALSE;
 	AddDocTemplate(m_pAnalysis);
+
+	//
+	m_pElements= new CMultiDocTemplate(IDR_MAINFRAME,
+		RUNTIME_CLASS(CPlayDemoDoc),
+		RUNTIME_CLASS(CChildFrame), // 自定义 MDI 子框架
+		RUNTIME_CLASS(CElementsView));//
+	if (!m_pElements)
+		return FALSE;
+	AddDocTemplate(m_pElements);
 	////
 	// 若要创建主窗口，此代码将创建新的框架窗口
 	// 创建主 MDI 框架窗口
@@ -154,39 +196,23 @@ BOOL CPlayDemoApp::InitInstance()
 int CPlayDemoApp::ExitInstance()
 {
 	// TODO: 在此添加专用代码和/或调用基类
-	BCGCBProCleanUp();
+	
+	//if(m_pPlay)
+	//{
+	//	m_pPlay->CloseAllDocuments(0);
+	//	delete m_pPlay;
+	//}
+	//if(m_pAnalysis)
+	//{
+	//	m_pAnalysis->CloseAllDocuments(0);
+	//	delete m_pAnalysis;
+	//}
+	if(m_pAnalyInfo)
+		delete m_pAnalyInfo;
+	
+
 	return CWinAppEx::ExitInstance();
 }
-
-///////////////
-
-class CAboutDlg1 : public CDialog
-{
-public:
-	CAboutDlg1();
-
-	// 对话框数据
-	enum { IDD = IDD_ABOUTBOX };
-
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
-
-	// 实现
-protected:
-	DECLARE_MESSAGE_MAP()
-};
-
-CAboutDlg1::CAboutDlg1() : CDialog(CAboutDlg1::IDD)
-{
-}
-
-void CAboutDlg1::DoDataExchange(CDataExchange* pDX)
-{
-	CDialog::DoDataExchange(pDX);
-}
-
-BEGIN_MESSAGE_MAP(CAboutDlg1, CDialog)
-END_MESSAGE_MAP()
 
 // 用于运行对话框的应用程序命令
 void CPlayDemoApp::OnAppAbout()
@@ -220,8 +246,16 @@ void CPlayDemoApp::SaveCustomState()
 
 void CPlayDemoApp::OnFileNew()
 {
-	m_pPlay->OpenDocumentFile(NULL);
+	POSITION rPos =  m_pPlay->GetFirstDocPosition();
+
+	if(!rPos)
+		m_pPlay->OpenDocumentFile(NULL);
+	
 	m_pAnalysis->OpenDocumentFile(NULL);
+
+	m_pElements->OpenDocumentFile(NULL);
 }
 
 // CPlayDemoApp 消息处理程序
+
+

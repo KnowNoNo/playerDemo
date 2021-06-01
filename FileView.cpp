@@ -49,7 +49,7 @@ int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	rectDummy.SetRectEmpty();
 
 	// 创建视图:
-	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS;
+	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE /*| TVS_HASLINES*/ | TVS_LINESATROOT | TVS_HASBUTTONS;
 
 	if (!m_wndFileView.Create(dwViewStyle, rectDummy, this, 4))
 	{
@@ -75,7 +75,7 @@ int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 所有命令将通过此控件路由，而不是通过主框架路由:
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
-	// 填入一些静态树视图数据(此处只需填入虚拟代码，而不是复杂的数据)
+	// 填入树视图数据
 	FillFileView();
 	AdjustLayout();
 
@@ -90,33 +90,33 @@ void CFileView::OnSize(UINT nType, int cx, int cy)
 
 void CFileView::FillFileView()
 {
-	HTREEITEM hRoot = m_wndFileView.InsertItem(_T("FakeApp 文件"), 0, 0);
+	HTREEITEM hRoot = m_wndFileView.InsertItem(_T("机车数据"), 0, 0);
 	m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
 
-	HTREEITEM hSrc = m_wndFileView.InsertItem(_T("FakeApp 源文件"), 0, 0, hRoot);
+	HTREEITEM hSrc = m_wndFileView.InsertItem(_T("5000"), 0, 0, hRoot);
 
-	m_wndFileView.InsertItem(_T("FakeApp.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("FakeApp.rc"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("FakeAppDoc.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("FakeAppView.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("MainFrm.cpp"), 1, 1, hSrc);
-	m_wndFileView.InsertItem(_T("StdAfx.cpp"), 1, 1, hSrc);
+	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
+	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
+	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
+	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
+	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
+	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
 
-	HTREEITEM hInc = m_wndFileView.InsertItem(_T("FakeApp 头文件"), 0, 0, hRoot);
+	HTREEITEM hInc = m_wndFileView.InsertItem(_T("5001"), 0, 0, hRoot);
 
-	m_wndFileView.InsertItem(_T("FakeApp.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("FakeAppDoc.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("FakeAppView.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("Resource.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("MainFrm.h"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("StdAfx.h"), 2, 2, hInc);
+	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
+	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
+	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
+	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
+	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
+	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
 
-	HTREEITEM hRes = m_wndFileView.InsertItem(_T("FakeApp 资源文件"), 0, 0, hRoot);
+	HTREEITEM hRes = m_wndFileView.InsertItem(_T("5002"), 0, 0, hRoot);
 
-	m_wndFileView.InsertItem(_T("FakeApp.ico"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("FakeApp.rc2"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("FakeAppDoc.ico"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("FakeToolbar.bmp"), 2, 2, hRes);
+	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
+	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
+	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
+	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
 
 	m_wndFileView.Expand(hRoot, TVE_EXPAND);
 	m_wndFileView.Expand(hSrc, TVE_EXPAND);
@@ -170,7 +170,7 @@ void CFileView::AdjustLayout()
 
 void CFileView::OnProperties()
 {
-	AfxMessageBox(_T("属性...."));
+	//AfxMessageBox(_T("属性...."));
 
 }
 

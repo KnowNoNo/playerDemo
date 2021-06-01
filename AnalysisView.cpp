@@ -33,9 +33,9 @@ void CAnalysisView::DoDataExchange(CDataExchange* pDX)
 	//DDX_Control(pDX, IDC_SERIES_SHADOW, m_wndDisplayShadow);
 	DDX_Control(pDX, IDC_DATA_LABEL_POSITION, m_wndDataLabelPosition);
 	DDX_Control(pDX, IDC_CHART_YEAR, m_wndChartYear);
-	DDX_Control(pDX, IDC_CHART_MONTH, m_wndChartMonth);
-	DDX_Control(pDX, IDC_CHART_DAY, m_wndChartDay);
-	DDX_Control(pDX, IDC_CHART_HOUR, m_wndChartHour);
+//	DDX_Control(pDX, IDC_CHART_MONTH, m_wndChartMonth);
+//	DDX_Control(pDX, IDC_CHART_DAY, m_wndChartDay);
+//	DDX_Control(pDX, IDC_CHART_HOUR, m_wndChartHour);
 	DDX_CBIndex(pDX, IDC_FILL_GRADIENT_TYPE, m_nFillGradientType);
 	DDX_Check(pDX, IDC_DATA_LABELS, m_bShowDataLabels);
 	DDX_CBIndex(pDX, IDC_DATA_LABEL_POSITION, m_nDataLabelPosition);
@@ -71,7 +71,7 @@ void CAnalysisView::Dump(CDumpContext& dc) const
 
 
 // CAnalysisView 消息处理程序
-
+#include "MainFrm.h"
 void CAnalysisView::OnInitialUpdate()
 {
 	CFormView::OnInitialUpdate();
@@ -80,6 +80,11 @@ void CAnalysisView::OnInitialUpdate()
 
 	ResizeParentToFit();
 	
+	((CMainFrame*)AfxGetMainWnd())->AdaptWindowSize();
+	//((CMainFrame*)AfxGetMainWnd())->SendMessage(WM_SIZE,0,MAKELPARAM(571,357));
+	//::SetWindowPos(this->GetSafeHwnd(), NULL, 0, 0, 571,357 , SWP_NOZORDER|SWP_NOACTIVATE);
+	
+
 	//
 	CComboBox	*comboButton = ((CComboBox*)GetDlgItem(IDC_COLOR_TYPE));
 	comboButton->AddString (_T("Default Theme"));
@@ -114,7 +119,7 @@ void CAnalysisView::OnInitialUpdate()
 	//
 	CTime timeS,timeA;
 	CString csTime;
-	timeS = DATETIME_START_INIT;
+	timeS = INIT_STOREINFO_DATETIME;
 	timeA = CTime::GetCurrentTime();
 	if(timeA.GetTime() < timeS.GetTime())
 		timeA = timeS;
@@ -125,19 +130,36 @@ void CAnalysisView::OnInitialUpdate()
 	//
 	InitChart();
 	
-	//CBCGPChartBarSeries* pBarSeries1 = DYNAMIC_DOWNCAST(CBCGPChartBarSeries, pChartY->CreateSeries(_T("Fuel")));
+	CBCGPChartVisualObject* pChartY = m_wndChartYear.GetChart();
+	CBCGPChartBarSeries* pBarSeries1 = DYNAMIC_DOWNCAST(CBCGPChartBarSeries, pChartY->CreateSeries(_T("5001号机车")));
 
-	//pBarSeries1->AddDataPoint(L"2001", 1);
-	//pBarSeries1->AddDataPoint(L"2002", 2);
-	//pBarSeries1->AddDataPoint(L"2003", 3);
-	//pBarSeries1->AddDataPoint(L"2004", 4);
-	//pBarSeries1->AddDataPoint(L"2005", 5);
+	pBarSeries1->AddDataPoint(L"2001", 1);
+	pBarSeries1->AddDataPoint(L"2002", 2);
+	pBarSeries1->AddDataPoint(L"2003", 3);
+	pBarSeries1->AddDataPoint(L"2004", 4);
+	pBarSeries1->AddDataPoint(L"2005", 5);
 	
+	CBCGPChartBarSeries* pBarSeries2 = DYNAMIC_DOWNCAST(CBCGPChartBarSeries, pChartY->CreateSeries(_T("5002号机车")));
+
+	pBarSeries2->AddDataPoint(L"2001", 5);
+	pBarSeries2->AddDataPoint(L"2002", 4);
+	pBarSeries2->AddDataPoint(L"2003", 3);
+	pBarSeries2->AddDataPoint(L"2004", 2);
+	pBarSeries2->AddDataPoint(L"2005", 1);
+
+	CBCGPChartBarSeries* pBarSeries3 = DYNAMIC_DOWNCAST(CBCGPChartBarSeries, pChartY->CreateSeries(_T("5003号机车")));
+
+	pBarSeries3->AddDataPoint(L"2001", 10);
+	pBarSeries3->AddDataPoint(L"2002", 1);
+	pBarSeries3->AddDataPoint(L"2003", 9);
+	pBarSeries3->AddDataPoint(L"2004", 2);
+	pBarSeries3->AddDataPoint(L"2005", 8);
 	// 莫名BUG 注意此语句调用在chart控件生成后 
 	GetParent()->SetWindowText(L"数据分析");
 
 	OnUpdateChart();
-	OnPaint();
+	Invalidate();
+	UpdateData();
 }
 
 void CAnalysisView::InitChart()
@@ -148,19 +170,19 @@ void CAnalysisView::InitChart()
 	CBCGPChartVisualObject* pChartY = m_wndChartYear.GetChart();
 	ASSERT_VALID(pChartY);
 
-	CBCGPChartVisualObject* pChartM = m_wndChartMonth.GetChart();
-	ASSERT_VALID(pChartM);
+	//CBCGPChartVisualObject* pChartM = m_wndChartMonth.GetChart();
+	//ASSERT_VALID(pChartM);
 
-	CBCGPChartVisualObject* pChartD = m_wndChartDay.GetChart();
-	ASSERT_VALID(pChartD);
+	//CBCGPChartVisualObject* pChartD = m_wndChartDay.GetChart();
+	//ASSERT_VALID(pChartD);
 
-	CBCGPChartVisualObject* pChartH = m_wndChartHour.GetChart();
-	ASSERT_VALID(pChartH);
+	//CBCGPChartVisualObject* pChartH = m_wndChartHour.GetChart();
+	//ASSERT_VALID(pChartH);
 
 	pChartY->SetChartType(category, type);
-	pChartM->SetChartType(category, type);
-	pChartD->SetChartType(category, type);
-	pChartH->SetChartType(category, type);
+	//pChartM->SetChartType(category, type);
+	//pChartD->SetChartType(category, type);
+	//pChartH->SetChartType(category, type);
 	//pChart->SetChartTitle(csTitle);//
 }
 
@@ -171,9 +193,9 @@ void CAnalysisView::OnUpdateChart()
 	m_wndDataLabelPosition.EnableWindow(m_bShowDataLabels);
 
 	UpdateChart(m_wndChartYear.GetChart());
-	UpdateChart(m_wndChartMonth.GetChart());
-	UpdateChart(m_wndChartDay.GetChart());
-	UpdateChart(m_wndChartHour.GetChart());
+	//UpdateChart(m_wndChartMonth.GetChart());
+	//UpdateChart(m_wndChartDay.GetChart());
+	//UpdateChart(m_wndChartHour.GetChart());
 	
 }
 

@@ -17,6 +17,7 @@ IMPLEMENT_DYNCREATE(CChildFrame, CMDIChildWndEx)
 
 BEGIN_MESSAGE_MAP(CChildFrame, CMDIChildWndEx)
 	ON_WM_CREATE()
+	ON_WM_CHILDACTIVATE()
 END_MESSAGE_MAP()
 
 // CChildFrame 构造/析构
@@ -85,4 +86,13 @@ int CChildFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  在此添加您专用的创建代码
 
 	return 0;
+}
+
+void CChildFrame::OnChildActivate()
+{
+	CMDIChildWndEx::OnChildActivate();
+	
+	// TODO: 在此处添加消息处理程序代码
+
+	SendMessage(WM_ERASEBKGND,(WPARAM)GetDC()->GetSafeHdc(),0);
 }

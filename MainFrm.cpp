@@ -6,6 +6,7 @@
 #include "PlayDemo.h"
 #include "AnalysisView.h"
 #include "ChildView.h"
+#include "ElementsView.h"
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -23,6 +24,7 @@ const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
 
 BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_WM_CREATE()
+	ON_WM_SHOWWINDOW()
 	ON_COMMAND(ID_WINDOW_MANAGER, &CMainFrame::OnWindowManager)
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
@@ -46,10 +48,12 @@ CMainFrame::CMainFrame()
 {
 	// TODO: 在此添加成员初始化代码
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
+	m_bInitPos = FALSE;
 }
 
 CMainFrame::~CMainFrame()
 {
+	::BCGCBProCleanUp();
 }
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -61,6 +65,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	SetIcon(AfxGetApp()->LoadIcon(IDR_MAINFRAME), FALSE);	
 	
 	//SetTitle(L"乘务员疲劳检测分析系统V1.0");
+	SetWindowPos(this,0,0,1000,1000,SWP_NOMOVE|SWP_NOSIZE|SWP_NOACTIVATE);
 
 	BOOL bNameValid;
 	// 基于持久值设置视觉管理器和样式
@@ -131,12 +136,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 导航窗格将创建在左侧，因此将暂时禁用左侧的停靠:
 	EnableDocking(CBRS_ALIGN_TOP | CBRS_ALIGN_BOTTOM | CBRS_ALIGN_RIGHT);
 
-	// 创建并设置“Outlook”导航栏:
-	if (!CreateOutlookBar(m_wndNavigationBar, ID_VIEW_NAVIGATION, m_wndTree, m_wndCalendar, 250))
-	{
-		TRACE0("未能创建导航窗格\n");
-		return -1;      // 未能创建
-	}
+	//// 创建并设置“Outlook”导航栏:
+	//if (!CreateOutlookBar(m_wndNavigationBar, ID_VIEW_NAVIGATION, m_wndTree, m_wndCalendar, 250))
+	//{
+	//	TRACE0("未能创建导航窗格\n");
+	//	return -1;      // 未能创建
+	//}
 
 	// 已创建 Outlook 栏，应允许在左侧停靠。
 	EnableDocking(CBRS_ALIGN_LEFT);
@@ -153,12 +158,16 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 	m_wndFileView.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
+	//m_wndClassView.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndFileView);
-	CDockablePane* pTabbedBar = NULL;
-	m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
-	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndProperties);
+	//m_wndFileView.ToggleAutoHide();
+	m_wndFileView.EnableAutohideAll(1);
+	
+
+	//CDockablePane* pTabbedBar = NULL;
+	//m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
+	//m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
+	//DockPane(&m_wndProperties);
 
 	// 启用增强的窗口管理对话框
 	EnableWindowsDialog(ID_WINDOW_MANAGER, IDS_WINDOWS_MANAGER, TRUE);
@@ -223,16 +232,18 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 BOOL CMainFrame::CreateDockingWindows()
 {
 	BOOL bNameValid;
+	
+	CMainFrame::EnableLoadDockState(FALSE);
 
 	// 创建类视图
 	CString strClassView;
 	bNameValid = strClassView.LoadString(IDS_CLASS_VIEW);
 	ASSERT(bNameValid);
-	if (!m_wndClassView.Create(strClassView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_CLASSVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("未能创建“类视图”窗口\n");
-		return FALSE; // 未能创建
-	}
+	//if (!m_wndClassView.Create(strClassView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_CLASSVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+	//{
+	//	TRACE0("未能创建“类视图”窗口\n");
+	//	return FALSE; // 未能创建
+	//}
 
 	// 创建文件视图
 	CString strFileView;
@@ -243,16 +254,17 @@ BOOL CMainFrame::CreateDockingWindows()
 		TRACE0("未能创建“文件视图”窗口\n");
 		return FALSE; // 未能创建
 	}
+	m_wndFileView.SetControlBarStyle(~AFX_CBRS_CLOSE);
 
 	// 创建属性窗口
 	CString strPropertiesWnd;
 	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
 	ASSERT(bNameValid);
-	if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
-	{
-		TRACE0("未能创建“属性”窗口\n");
-		return FALSE; // 未能创建
-	}
+	//if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
+	//{
+	//	TRACE0("未能创建“属性”窗口\n");
+	//	return FALSE; // 未能创建
+	//}
 	SetDockingWindowIcons(theApp.m_bHiColorIcons);
 	return TRUE;
 }
@@ -262,11 +274,11 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 	HICON hFileViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_FILE_VIEW_HC : IDI_FILE_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wndFileView.SetIcon(hFileViewIcon, FALSE);
 
-	HICON hClassViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_CLASS_VIEW_HC : IDI_CLASS_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndClassView.SetIcon(hClassViewIcon, FALSE);
+	//HICON hClassViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_CLASS_VIEW_HC : IDI_CLASS_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	//m_wndClassView.SetIcon(hClassViewIcon, FALSE);
 
-	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
+	//HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	//m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
 
 	UpdateMDITabbedBarsIcons();
 }
@@ -453,7 +465,6 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 		return FALSE;
 	}
 
-
 	// 为所有用户工具栏启用自定义按钮
 	BOOL bNameValid;
 	CString strCustomize;
@@ -469,11 +480,23 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 		}
 	}
 
+	//	自动隐藏机车文件视图
+	m_wndFileView.SetAutoHideMode(true, CBRS_ALIGN_LEFT);
 	return TRUE;
 }
 
 void CMainFrame::AdaptWindowSize()
 {
+	if(!m_bInitPos)
+	{
+		if(::IsWindow(this->GetSafeHwnd())) ::SetWindowPos(this->GetSafeHwnd(), NULL, 0, 0, 903,675 , SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+		CenterWindow();
+		theApp.m_bInit = TRUE;
+		return ;
+	}
+
+	m_bInitPos = TRUE;
+
 	//// 根据分辨率自动调节窗口大小
 	MONITORINFO oMonitor = {};
 	oMonitor.cbSize = sizeof(oMonitor);
@@ -538,13 +561,7 @@ void CMainFrame::SwitchToView(CDocTemplate * pTemplate, CRuntimeClass * pViewCla
 			}
 	}
 
-	CMDIChildWnd *pNewFrame = (CMDIChildWnd *)
-		(pTemplate->CreateNewFrame(pDoc, NULL));   // 如果没有创建，则创建此view的childframe及view
-
-	if (pNewFrame == NULL)
-		return;
-
-	pTemplate->InitialUpdateFrame(pNewFrame, pDoc);
+	pTemplate->OpenDocumentFile(NULL);
 }  
 
 void CMainFrame::OnViewPlay()
@@ -557,4 +574,20 @@ void CMainFrame::OnViewAnalysis()
 {
 	// TODO: 在此添加命令处理程序代码
 	SwitchToView(theApp.m_pAnalysis,RUNTIME_CLASS(CAnalysisView));
+}
+
+void CMainFrame::OnViewElements()
+{
+	// TODO: 在此添加命令处理程序代码
+	SwitchToView(theApp.m_pElements,RUNTIME_CLASS(CElementsView));
+}
+
+void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
+{
+	CMDIFrameWndEx::OnShowWindow(bShow, nStatus);
+
+	// Hide Properties pane in startup
+	//m_wndFileView.SetAutoHideMode(FALSE, CBRS_ALIGN_ANY);
+	//m_wndFileView.ShowPane(FALSE, FALSE, FALSE);
+	
 }

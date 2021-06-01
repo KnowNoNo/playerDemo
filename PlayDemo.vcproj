@@ -433,6 +433,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ElementsView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FileView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -619,6 +627,14 @@
 			</File>
 			<File
 				RelativePath=".\ClassView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ElementsView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileView.h"
 				>
 			</File>
 			<File
@@ -931,10 +947,6 @@
 				</File>
 				<File
 					RelativePath="FileStreamPlayer.h"
-					>
-				</File>
-				<File
-					RelativePath=".\FileView.h"
 					>
 				</File>
 				<File
@@ -1300,10 +1312,6 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
-				</File>
-				<File
-					RelativePath=".\FileView.cpp"
-					>
 				</File>
 				<File
 					RelativePath=".\FishEyePTZHandler.cpp"

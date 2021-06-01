@@ -81,6 +81,7 @@ protected:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnClose();
+	afx_msg void OnDestroy();
 	afx_msg void OnHelpAbout();
 
 	// menu list
@@ -138,7 +139,7 @@ private:
 	CNiceSliderCtrl	m_sdAudioWave;
 	CNiceSliderCtrl	m_sdAuidoVolume;
 
-
+	/*	CButton*/
 	CHoverButton	m_bnPlay;
 	CHoverButton	m_bnPause;
 	CHoverButton	m_bnStop;

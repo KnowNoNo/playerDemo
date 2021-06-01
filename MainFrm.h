@@ -47,15 +47,11 @@ protected:  // 控件条嵌入成员
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 	CFileView         m_wndFileView;
-	CClassView        m_wndClassView;
-	CPropertiesWnd    m_wndProperties;
+	//CClassView        m_wndClassView;
+	//CPropertiesWnd    m_wndProperties;
 	COutlookBar       m_wndNavigationBar;
 	CMFCShellTreeCtrl m_wndTree;
 	CCalendarBar      m_wndCalendar;
-
-protected:
-	void AdaptWindowSize();
-	void SwitchToView(CDocTemplate * pTemplate, CRuntimeClass * pViewClass);
 
 	// 生成的消息映射函数
 protected:
@@ -65,20 +61,26 @@ protected:
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
-
+	afx_msg void OnShowWindow(BOOL bShow, UINT nStatus);
 	afx_msg void OnViewPlay();
 	afx_msg void OnViewAnalysis();
+	afx_msg void OnViewElements();
 	DECLARE_MESSAGE_MAP()
 
 	BOOL CreateDockingWindows();
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 	BOOL CreateOutlookBar(CMFCOutlookBar& bar, UINT uiID, CMFCShellTreeCtrl& tree, CCalendarBar& calendar, int nInitialWidth);
-
 	int FindFocusedOutlookWnd(CMFCOutlookBarTabCtrl** ppOutlookWnd);
+
+	void SwitchToView(CDocTemplate * pTemplate, CRuntimeClass * pViewClass);
 
 	CMFCOutlookBarTabCtrl* FindOutlookParent(CWnd* pWnd);
 	CMFCOutlookBarTabCtrl* m_pCurrOutlookWnd;
 	CMFCOutlookBarPane*    m_pCurrOutlookPage;
+
+public:
+	BOOL m_bInitPos;
+	void AdaptWindowSize();
 };
 
 

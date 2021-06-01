@@ -579,7 +579,7 @@ bool CPlayer::SetTranslateString(const char* language)
 {
 	if (!m_lpPlay)
 	{
-		return -1;
+		return false;
 	}
 
 	return m_lpPlay->SetTranslateString(language);

@@ -2,7 +2,6 @@
 #include "StdAfx.h"
 
 // CAnalysisView 窗体视图
-#define		DATETIME_START_INIT	CTime(2021,04,16,0,0,0)
 
 class CAnalysisView : public CFormView
 {
@@ -13,7 +12,7 @@ protected:
 	virtual ~CAnalysisView();
 
 public:
-	enum { IDD = IDD_FORMVIEW_ANALYSIS };
+	enum { IDD = IDD_FORMVIEW_ANALYSIS1 };
 #ifdef _DEBUG
 	virtual void AssertValid() const;
 #ifndef _WIN32_WCE
@@ -33,9 +32,9 @@ public:
 	CDateTimeCtrl m_DateTimeAsk;
 	// 表格设置
 	CBCGPChartCtrl	m_wndChartYear;
-	CBCGPChartCtrl	m_wndChartMonth;
-	CBCGPChartCtrl	m_wndChartDay;
-	CBCGPChartCtrl	m_wndChartHour;
+	//CBCGPChartCtrl	m_wndChartMonth;
+	//CBCGPChartCtrl	m_wndChartDay;
+	//CBCGPChartCtrl	m_wndChartHour;
 	//CBCGPButton	m_wndDisplayShadow;
 	CBCGPComboBox	m_wndDataLabelPosition;
 	int		m_nFillGradientType;
