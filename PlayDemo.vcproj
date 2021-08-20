@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="dhplay.lib"
-				OutputFile=".\Release/PlayDemo.exe"
+				OutputFile=".\Release/DMAnalysis.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories=""
@@ -122,7 +122,7 @@
 			IntermediateDirectory=".\Release"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
 			>
@@ -151,7 +151,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="4"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="2"
 				PrecompiledHeaderThrough="stdafx.h"
 				PrecompiledHeaderFile=".\Release/PlayDemo.pch"
@@ -421,6 +421,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CarInfo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ChildFrm.cpp"
 				>
 			</File>
@@ -433,11 +437,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DlgCarSelect.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ElementsView.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\FileView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FileWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IniCfgFile.cpp"
 				>
 			</File>
 			<File
@@ -561,6 +577,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PublicFunction.cpp"
+				>
+			</File>
+			<File
 				RelativePath="StdAfx.cpp"
 				>
 				<FileConfiguration
@@ -618,6 +638,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CarInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ChildFrm.h"
 				>
 			</File>
@@ -630,11 +654,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DlgCarSelect.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ElementsView.h"
 				>
 			</File>
 			<File
 				RelativePath=".\FileView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IniCfgFile.h"
 				>
 			</File>
 			<File
@@ -651,6 +687,10 @@
 			</File>
 			<File
 				RelativePath=".\PropertiesWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PublicFunction.h"
 				>
 			</File>
 			<File
@@ -696,6 +736,10 @@
 			</File>
 			<File
 				RelativePath=".\res\bmp00003.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\bmp00004.bmp"
 				>
 			</File>
 			<File
@@ -803,11 +847,11 @@
 				>
 			</File>
 			<File
-				RelativePath="G:\视频回放demo3\res\PlayDemo.ico"
+				RelativePath="res\PlayDemo.ico"
 				>
 			</File>
 			<File
-				RelativePath="res\PlayDemo.ico"
+				RelativePath="G:\视频回放demo3\res\PlayDemo.ico"
 				>
 			</File>
 			<File
@@ -1682,6 +1726,66 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+		</Filter>
+		<Filter
+			Name="TPFile"
+			>
+			<File
+				RelativePath=".\FTPCmdClass.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FTPCmdClass.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Oracle"
+			>
+			<File
+				RelativePath=".\Oracle\ADOConnection.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Oracle\ADOConnection.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Oracle\ADORecordset.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Oracle\ADORecordset.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Oracle\DbOperation.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Oracle\DbOperation.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="BtnCtrl"
+			>
+			<File
+				RelativePath=".\BCMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BCMenu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\BtnST.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\BtnST.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath="ReadMe.txt"

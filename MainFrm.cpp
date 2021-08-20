@@ -32,6 +32,17 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
 	ON_COMMAND(ID_VIEW_PLAY, &CMainFrame::OnViewPlay)
 	ON_COMMAND(ID_VIEW_ANALYSIS, &CMainFrame::OnViewAnalysis)
+	ON_COMMAND(ID_VIEW_ELEMENTS, &CMainFrame::OnViewElements)
+	ON_WM_CLOSE()
+	ON_COMMAND(ID_FILE_VIEW_OPEN, &CMainFrame::OnFileViewOpen)
+	ON_COMMAND(ID_FILE_VIEW_CLOSE, &CMainFrame::OnFileViewClose)
+	ON_COMMAND(ID_ANALYSIS_VIEW_OPEN, &CMainFrame::OnAnalysisViewOpen)
+	ON_COMMAND(ID_ANALYSIS_VIEW_CLOSE, &CMainFrame::OnAnalysisViewClose)
+	ON_COMMAND(ID_ANALYSIS_VIEW_OPEN2, &CMainFrame::OnAnalysisViewOpen2)
+	ON_COMMAND(ID_ANALYSIS_VIEW_CLOSE2, &CMainFrame::OnAnalysisViewClose2)
+	ON_COMMAND(ID_ANALYSIS_VIEW_LOAD, &CMainFrame::OnAnalysisViewLoad)
+	ON_COMMAND(ID_ANALYSIS_VIEW_LOAD2, &CMainFrame::OnAnalysisViewLoad2)
+	ON_COMMAND(ID_LOADFILE_LOC, &CMainFrame::OnLoadfileLoc)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -93,25 +104,25 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// 防止菜单栏在激活时获得焦点
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 
-	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
-		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
-	{
-		TRACE0("未能创建工具栏\n");
-		return -1;      // 未能创建
-	}
+	//if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
+	//	!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
+	//{
+	//	TRACE0("未能创建工具栏\n");
+	//	return -1;      // 未能创建
+	//}
 
-	CString strToolBarName;
-	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
-	ASSERT(bNameValid);
-	m_wndToolBar.SetWindowText(strToolBarName);
+	//CString strToolBarName;
+	//bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
+	//ASSERT(bNameValid);
+	//m_wndToolBar.SetWindowText(strToolBarName);
 
-	CString strCustomize;
-	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	ASSERT(bNameValid);
-	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+	//CString strCustomize;
+	//bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
+	//ASSERT(bNameValid);
+	//m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
 
 	// 允许用户定义的工具栏操作:
-	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
+	//InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
 
 	if (!m_wndStatusBar.Create(this))
 	{
@@ -122,10 +133,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO: 如果您不希望工具栏和菜单栏可停靠，请删除这五行
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	//m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
-	DockPane(&m_wndToolBar);
+	//DockPane(&m_wndToolBar);
 
 
 	// 启用 Visual Studio 2005 样式停靠窗口行为
@@ -163,7 +174,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//m_wndFileView.ToggleAutoHide();
 	m_wndFileView.EnableAutohideAll(1);
 	
-
 	//CDockablePane* pTabbedBar = NULL;
 	//m_wndClassView.AttachToTabWnd(&m_wndFileView, DM_SHOW, TRUE, &pTabbedBar);
 	//m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
@@ -173,20 +183,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableWindowsDialog(ID_WINDOW_MANAGER, IDS_WINDOWS_MANAGER, TRUE);
 
 	// 启用工具栏和停靠窗口菜单替换
-	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
+	//EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
 
 	// 启用快速(按住 Alt 拖动)工具栏自定义
-	CMFCToolBar::EnableQuickCustomization();
+	//CMFCToolBar::EnableQuickCustomization();
 
-	if (CMFCToolBar::GetUserImages() == NULL)
-	{
-		// 加载用户定义的工具栏图像
-		if (m_UserImages.Load(_T(".\\UserImages.bmp")))
-		{
-			m_UserImages.SetImageSize(CSize(16, 16), FALSE);
-			CMFCToolBar::SetUserImages(&m_UserImages);
-		}
-	}
+	//if (CMFCToolBar::GetUserImages() == NULL)
+	//{
+	//	// 加载用户定义的工具栏图像
+	//	if (m_UserImages.Load(_T(".\\UserImages.bmp")))
+	//	{
+	//		m_UserImages.SetImageSize(CSize(16, 16), FALSE);
+	//		CMFCToolBar::SetUserImages(&m_UserImages);
+	//	}
+	//}
 
 	// 启用菜单个性化(最近使用的命令)
 	// TODO: 定义您自己的基本命令，确保每个下拉菜单至少有一个基本命令。
@@ -249,7 +259,7 @@ BOOL CMainFrame::CreateDockingWindows()
 	CString strFileView;
 	bNameValid = strFileView.LoadString(IDS_FILE_VIEW);
 	ASSERT(bNameValid);
-	if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
+	if (!m_wndFileView.Create(strFileView, this, CRect(0, 0, 250, 200), TRUE, ID_VIEW_FILEVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
 	{
 		TRACE0("未能创建“文件视图”窗口\n");
 		return FALSE; // 未能创建
@@ -540,27 +550,12 @@ void CMainFrame::AdaptWindowSize()
 
 void CMainFrame::SwitchToView(CDocTemplate * pTemplate, CRuntimeClass * pViewClass)
 {
-
-	CMDIChildWnd *pMDIActive = static_cast<CMDIChildWnd*>(GetActiveFrame());//获得活动子窗口
-	CDocument *pDoc = pMDIActive->GetActiveDocument(); //获得活动doc
-	CView *pView;
-	if(pDoc)
+	POSITION pos = pTemplate->GetFirstDocPosition();
+	if(pos != 0 && pViewClass == RUNTIME_CLASS(CChildView))
 	{
-		POSITION pos = pDoc->GetFirstViewPosition();   //查询此doc下的所有已创建view
-			while (pos != NULL)
-			{
-				pView = pDoc->GetNextView(pos);
-				if (pView->IsKindOf(pViewClass))   //如果已创建此view 则设其为活动
-				{ 
-					// the requested view class has already been created; show it
-					pView->GetParentFrame()->ActivateFrame();  
-					//pView->UpdateWindow();//视图更新显示；
-					return;
-				}
-				pView->UpdateWindow();
-			}
+		MessageBox(L"回放页面已打开");
+		return;
 	}
-
 	pTemplate->OpenDocumentFile(NULL);
 }  
 
@@ -590,4 +585,97 @@ void CMainFrame::OnShowWindow(BOOL bShow, UINT nStatus)
 	//m_wndFileView.SetAutoHideMode(FALSE, CBRS_ALIGN_ANY);
 	//m_wndFileView.ShowPane(FALSE, FALSE, FALSE);
 	
+}
+
+void CMainFrame::GetChildView()
+{
+	POSITION rPos =  theApp.m_pPlay->GetFirstDocPosition();
+	if(rPos == 0)
+	{
+		theApp.m_pPlay->OpenDocumentFile(NULL);
+	}
+
+	rPos =  theApp.m_pPlay->GetFirstDocPosition();
+	CDocument* pDoc = theApp.m_pPlay->GetNextDoc(rPos);
+
+	CView *pView;
+	if(pDoc)
+	{
+		POSITION pos = pDoc->GetFirstViewPosition();   //查询此doc下的所有已创建view
+		while (pos != NULL)
+		{
+			pView = pDoc->GetNextView(pos);
+			if (pView->IsKindOf(RUNTIME_CLASS(CChildView)))   //如果已创建此view 则设其为活动
+			{ 
+				// the requested view class has already been created; show it
+				pView->GetParentFrame()->ActivateFrame();  
+				pView->UpdateWindow();//视图更新显示；
+				return;
+			}
+		}
+	}
+	return ;
+}
+
+
+void CMainFrame::OnClose()
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if( AfxMessageBox(L"是否确认退出",MB_YESNOCANCEL) != IDYES)
+		return;
+
+	CMDIFrameWndEx::OnClose();
+}
+
+void CMainFrame::OnFileViewOpen()
+{
+	// TODO: 在此添加命令处理程序代码
+	SwitchToView(theApp.m_pPlay,RUNTIME_CLASS(CChildView));
+}
+
+void CMainFrame::OnFileViewClose()
+{
+	// TODO: 在此添加命令处理程序代码
+	theApp.m_pPlay->CloseAllDocuments(0);
+}
+
+void CMainFrame::OnAnalysisViewOpen()
+{
+	// TODO: 在此添加命令处理程序代码
+	SwitchToView(theApp.m_pAnalysis,RUNTIME_CLASS(CAnalysisView));
+}
+
+void CMainFrame::OnAnalysisViewClose()
+{
+	// TODO: 在此添加命令处理程序代码
+	theApp.m_pAnalysis->CloseAllDocuments(0);
+}
+
+void CMainFrame::OnAnalysisViewOpen2()
+{
+	// TODO: 在此添加命令处理程序代码
+	SwitchToView(theApp.m_pElements,RUNTIME_CLASS(CElementsView));
+}
+
+
+void CMainFrame::OnAnalysisViewClose2()
+{
+	// TODO: 在此添加命令处理程序代码
+	theApp.m_pElements->CloseAllDocuments(0);
+}
+
+void CMainFrame::OnAnalysisViewLoad()
+{
+	// TODO: 在此添加命令处理程序代码
+}
+
+void CMainFrame::OnAnalysisViewLoad2()
+{
+	// TODO: 在此添加命令处理程序代码
+}
+
+void CMainFrame::OnLoadfileLoc()
+{
+	// TODO: 在此添加命令处理程序代码
+	m_wndFileView.m_FileView.BeginLoadLocFileThread();
 }

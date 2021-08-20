@@ -156,9 +156,14 @@ BEGIN_MESSAGE_MAP(CChildView, CFormView)
 	ON_NOTIFY(NM_CUSTOMDRAW, IDC_LIST2, &CChildView::OnNMCustomdrawList2)
 	ON_BN_CLICKED(IDC_BUTTON_PLAYLIST, &CChildView::OnBnClickedButtonPlaylist)
 	ON_WM_DESTROY()
+	ON_MESSAGE(WM_ADDFILELIST, OnAddFileList)
+	ON_NOTIFY(NM_RCLICK, IDC_LIST2, &CChildView::OnNMRClickList2)
+	ON_COMMAND(ID_CHILD_PLAYLIST_PLAY, &CChildView::OnChildPlaylistPlay)
+	ON_COMMAND(ID_ID_CHILD_PLAYLIST_ERASE, &CChildView::OnIdChildPlaylistErase)
 END_MESSAGE_MAP()
 
 BEGIN_EASYSIZE_MAP(CChildView)
+
 
 	EASYSIZE(IDC_STATIC_PLAY,ES_BORDER,ES_BORDER,
 	ES_BORDER,ES_BORDER,0)
@@ -374,7 +379,7 @@ void CChildView::OnFileOpen()
 	int      iIndex = -1,iOldIndex = -1;
 	CString  strFilePath;
 	POSITION pos;
-	TCHAR    szFilter[]=L"DAV File(*.dav;)|*.dav;|ALL File(*.*)|*.*|";
+	TCHAR    szFilter[]=L"DAV File(*.dav;*.mp4)|*.dav;*.mp4|ALL File(*.*)|*.*|";
 	CFileDialog fileDlg(TRUE , NULL , NULL , OFN_HIDEREADONLY|OFN_OVERWRITEPROMPT|OFN_ALLOWMULTISELECT , szFilter ,this);
 
 	if(IDOK == fileDlg.DoModal())
@@ -1504,11 +1509,10 @@ void CChildView::OnFisheyeview360Cylinder()
 void CChildView::OnSize(UINT nType, int cx, int cy) 
 {
 	static BOOL s_bInit = FALSE;
-	if(m_bInitUpdate && theApp.m_bInit)
+	if(m_bInitUpdate && theApp.m_bInit && !s_bInit)
 	{
 		s_bInit = TRUE;
 		INIT_EASYSIZE;
-		m_bInitUpdate = FALSE;
 	}
 		
 	if(s_bInit)	
@@ -1636,12 +1640,13 @@ void CChildView::OnLittleWall()
 
 }
 
-int CChildView::AddFileList(CString csFilePath)
+int CChildView::AddFileList(CString csFilePath,BOOL bIsCarVideo)
 {	
 	int			iIndex;
 	TCHAR       szName[_MAX_FNAME];
 	TCHAR       szExt[_MAX_EXT];
 	LVITEM		lvIt;
+	CString     strFileName = L"",strCarId = L"",strDateTime = L"";
 
 	if(!PathFileExists(csFilePath))
 		return -1;
@@ -1650,21 +1655,44 @@ int CChildView::AddFileList(CString csFilePath)
 
 	if(_tcscmp(szExt,L".dav") && _tcscmp(szExt,L".avi") && _tcscmp(szExt,L".mp4") )
 		return -1;
-	iIndex = m_listCtrl.GetItemCount();
 
+	strFileName.Format(L"%s%s",szName,szExt);
+	if(bIsCarVideo == TRUE)
+	{	
+		GetCarAndDateFromFileName(strFileName,strCarId,strDateTime,TRUE);
+	}
+
+	m_CSFor_ListCtrl.Lock();
+
+	iIndex = m_listCtrl.GetItemCount();
+	//	机车号
 	lvIt.mask=LVIF_TEXT;
-	lvIt.pszText= szName;
+	lvIt.pszText= strCarId.GetBuffer(0);
 	lvIt.iSubItem=0;
 	lvIt.iItem=iIndex;
 	iIndex = m_listCtrl.InsertItem(&lvIt);
-	ASSERT(iIndex >= 0);
 
+	//	时间
+	lvIt.mask=LVIF_TEXT;
+	lvIt.pszText= strDateTime.GetBuffer(0);
+	lvIt.iSubItem=1;
+	lvIt.iItem=iIndex;
+	m_listCtrl.SetItem(&lvIt);
+	
+
+	lvIt.mask=LVIF_TEXT;
+	lvIt.pszText= szName;
+	lvIt.iSubItem=2;
+	lvIt.iItem=iIndex;
+	m_listCtrl.SetItem(&lvIt);
+	
 	lvIt.mask=LVIF_TEXT;
 	lvIt.iItem=iIndex;
 	lvIt.pszText=csFilePath.GetBuffer(0);
-	lvIt.iSubItem=1;
+	lvIt.iSubItem=3;
 	m_listCtrl.SetItem(&lvIt);
 
+	m_CSFor_ListCtrl.Unlock();
 	return iIndex;
 }
 void CChildView::OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult)
@@ -1673,19 +1701,16 @@ void CChildView::OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult)
 	// TODO: 在此添加控件通知处理程序代码
 	*pResult = 0;
 
+	m_CSFor_ListCtrl.Lock();
+
 	POSITION iPos  = m_listCtrl.GetFirstSelectedItemPosition();
 	int      nItem = m_listCtrl.GetNextSelectedItem(iPos);
 
-	CWnd*p = GetDlgItem(IDC_STATIC_MSG);
+	PlayNewFile(nItem);
 
-	if(nItem < 0 || nItem == m_nCurSelectItem)
-		return;
+	m_CSFor_ListCtrl.Unlock();
 
-	OnFileClose();
-	SetCurIndex(nItem);
-	m_dlgOpenFile.m_strFile = m_listCtrl.GetItemText(nItem,1);
 
-	OpenFile(m_listCtrl.GetItemText(nItem,1));
 	//m_CSFor_ListCtrl.Lock();
 	//OnOperator(IDC_STATIC_PLAY);
 	//m_CSFor_ListCtrl.Unlock();
@@ -1701,16 +1726,16 @@ void CChildView::OnNMCustomdrawSliderAudio(NMHDR *pNMHDR, LRESULT *pResult)
 void CChildView::OnBnClickedButtonFull()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	static BOOL bFull = false;
+	static BOOL bFull = FALSE;
 	bFull^=1;
 	if(bFull)
 	{
-		SendMessage(WM_SYSCOMMAND,SC_MAXIMIZE,0);
+		(CMainFrame*)AfxGetMainWnd()->SendMessage(WM_SYSCOMMAND,SC_MAXIMIZE,0);
 		m_ContentTip.UpdateTipText(L"退出全屏",GetDlgItem(IDC_BUTTON_FULL));
 	}
 	else
 	{
-		SendMessage(WM_SYSCOMMAND,SC_RESTORE,0);
+		(CMainFrame*)AfxGetMainWnd()->SendMessage(WM_SYSCOMMAND,SC_RESTORE,0);
 		m_ContentTip.UpdateTipText(L"全屏",GetDlgItem(IDC_BUTTON_FULL));
 	}
 
@@ -1871,10 +1896,10 @@ void CChildView::OnInitialUpdate()
 	//LIST 
 	m_listCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT /*| LVS_EX_GRIDLINES*/ | LVS_EX_HEADERDRAGDROP |LVS_EX_INFOTIP  );
 	//m_listCtrl.InsertColumn(0,L"NULL",LVCFMT_LEFT,0);
-	m_listCtrl.InsertColumn(0,L"列表",LVCFMT_LEFT,c_nListWidth-50);
-	//m_listCtrl.InsertColumn(1,L"时长",LVCFMT_LEFT,c_nListWidth/3-2);
-	//m_listCtrl.InsertColumn(3,L"时长（秒）",LVCFMT_LEFT,110);
-	m_listCtrl.InsertColumn(1,L"位置",LVCFMT_LEFT,60);
+	m_listCtrl.InsertColumn(0,L"机车号",LVCFMT_LEFT,50);
+	m_listCtrl.InsertColumn(1,L"时间",LVCFMT_LEFT,140);
+	m_listCtrl.InsertColumn(2,L"文件名",LVCFMT_LEFT,10);
+	m_listCtrl.InsertColumn(3,L"位置",LVCFMT_LEFT,10);
 
 	m_dlgDisplay.Create(IDD_DIALOG_DISPLAY, GetDlgItem(IDC_STATIC_PLAY));
 	m_dlgDisplay.ShowWindow(SW_SHOW);
@@ -1957,4 +1982,130 @@ void CChildView::OnDestroy()
 
 	// TODO: 在此处添加消息处理程序代码
 	OnFileClose();
+}
+
+LRESULT CChildView::OnAddFileList(WPARAM wParam, LPARAM lParam)
+{
+	CString* pStrFile = (CString*)wParam; 
+	BOOL*	 pbIsVideo = (BOOL*)lParam;
+	AddFileList(*pStrFile,*pbIsVideo);
+	return 0;
+}
+
+void CChildView::OnNMRClickList2(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMITEMACTIVATE pNMItemActivate = reinterpret_cast<LPNMITEMACTIVATE>(pNMHDR);
+	// TODO: 在此添加控件通知处理程序代码
+	*pResult = 0;
+
+	NM_LISTVIEW * pNMListView = (NM_LISTVIEW*)pNMHDR;
+	if(pNMListView->iItem != -1)
+	{
+		DWORD dwPos = GetMessagePos();
+		CPoint point(LOWORD(dwPos),HIWORD(dwPos));
+		CMenu menu;
+		VERIFY(menu.LoadMenu(IDR_MENU1));
+		CMenu *popUp = menu.GetSubMenu(0);
+		popUp->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON,point.x,point.y,this);
+	}
+
+}
+
+void CChildView::OnChildPlaylistPlay()
+{
+	// TODO: 在此添加命令处理程序代码
+	m_CSFor_ListCtrl.Lock();
+
+	POSITION iPos  = m_listCtrl.GetFirstSelectedItemPosition();
+	int      nItem = m_listCtrl.GetNextSelectedItem(iPos);
+
+	PlayNewFile(nItem);
+
+	m_CSFor_ListCtrl.Unlock();
+
+
+}
+
+void CChildView::OnIdChildPlaylistErase()
+{
+	// TODO: 在此添加命令处理程序代码
+	m_CSFor_ListCtrl.Lock();
+
+	POSITION iPos  = m_listCtrl.GetFirstSelectedItemPosition();
+	int      nItem = m_listCtrl.GetNextSelectedItem(iPos);
+
+	if(nItem == m_nCurSelectItem)
+	{
+		OnOperator(IDC_BUTTON_STOP);
+		SetCurIndex(-1);
+	}
+	else if(nItem < m_nCurSelectItem)
+	{
+		SetCurIndex(m_nCurSelectItem-1);
+	}
+	m_listCtrl.DeleteItem(nItem);
+
+	m_CSFor_ListCtrl.Unlock();
+
+}
+
+
+void CChildView::PlayNewFile(int nItem)
+{
+
+	CWnd*p = GetDlgItem(IDC_STATIC_MSG);
+
+	if(nItem < 0 || nItem == m_nCurSelectItem)
+		return;
+
+	OnFileClose();
+	SetCurIndex(nItem);
+	m_dlgOpenFile.m_strFile = m_listCtrl.GetItemText(nItem,3);
+	CString strFile = m_listCtrl.GetItemText(nItem,3);
+
+	OpenFile(strFile);
+}
+
+
+void CChildView::AddPopPic(UINT cxScreen)
+{
+
+	MONITORINFO oMonitor = {};
+	oMonitor.cbSize = sizeof(oMonitor);
+	::GetMonitorInfo(::MonitorFromWindow(*this, MONITOR_DEFAULTTONEAREST), &oMonitor);
+	UINT cxScreen = oMonitor.rcMonitor.right - oMonitor.rcMonitor.left;
+
+	int iX = 968, iY = 600;
+	int iWidthList = 225, iWidthSearchEdit = 193;
+	SIZE szFixSearchBtn = {201, 0};
+
+	if(cxScreen <= 1024)      // 800*600  1024*768  
+	{
+		iX = 775;
+		iY = 470;
+	} 
+	else if(cxScreen <= 1280) // 1152*864  1280*800  1280*960  1280*1024
+	{
+		iX = 968;
+		iY = 600;
+	}
+	else if(cxScreen <= 1366) // 1360*768 1366*768
+	{
+		iX = 1058;
+		iY = 656;
+		iWidthList        += 21;
+		iWidthSearchEdit  += 21;
+		szFixSearchBtn.cx += 21;
+	}
+	else                      // 1440*900
+	{
+		iX = 1224;
+		iY = 760;
+		iWidthList        += 66;
+		iWidthSearchEdit  += 66;
+		szFixSearchBtn.cx += 66;
+	}
+
+	if(::IsWindow(this->GetSafeHwnd())) ::SetWindowPos(this->GetSafeHwnd(), NULL, 0, 0, iX, iY, SWP_FRAMECHANGED|SWP_NOZORDER|SWP_NOACTIVATE);
+	CenterWindow();
 }

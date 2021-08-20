@@ -4,11 +4,12 @@
 
 #pragma once
 //#include "ChildView.h"
-#include "FileView.h"
+#include "FileWnd.h"
 #include "ClassView.h"
 #include "PropertiesWnd.h"
 #include "CalendarBar.h"
 #include "Resource.h"
+
 
 class COutlookBar : public CMFCOutlookBar
 {
@@ -46,13 +47,13 @@ protected:  // 控件条嵌入成员
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
-	CFileView         m_wndFileView;
+	CFileWnd          m_wndFileView;
 	//CClassView        m_wndClassView;
 	//CPropertiesWnd    m_wndProperties;
 	COutlookBar       m_wndNavigationBar;
 	CMFCShellTreeCtrl m_wndTree;
 	CCalendarBar      m_wndCalendar;
-
+	
 	// 生成的消息映射函数
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -71,7 +72,6 @@ protected:
 	void SetDockingWindowIcons(BOOL bHiColorIcons);
 	BOOL CreateOutlookBar(CMFCOutlookBar& bar, UINT uiID, CMFCShellTreeCtrl& tree, CCalendarBar& calendar, int nInitialWidth);
 	int FindFocusedOutlookWnd(CMFCOutlookBarTabCtrl** ppOutlookWnd);
-
 	void SwitchToView(CDocTemplate * pTemplate, CRuntimeClass * pViewClass);
 
 	CMFCOutlookBarTabCtrl* FindOutlookParent(CWnd* pWnd);
@@ -79,8 +79,21 @@ protected:
 	CMFCOutlookBarPane*    m_pCurrOutlookPage;
 
 public:
-	BOOL m_bInitPos;
-	void AdaptWindowSize();
+	BOOL		m_bInitPos;
+	void		AdaptWindowSize();
+	void        GetChildView();
+
+
+	afx_msg void OnClose();
+	afx_msg void OnFileViewOpen();
+	afx_msg void OnFileViewClose();
+	afx_msg void OnAnalysisViewOpen();
+	afx_msg void OnAnalysisViewClose();
+	afx_msg void OnAnalysisViewOpen2();
+	afx_msg void OnAnalysisViewClose2();
+	afx_msg void OnAnalysisViewLoad();
+	afx_msg void OnAnalysisViewLoad2();
+	afx_msg void OnLoadfileLoc();
 };
 
 

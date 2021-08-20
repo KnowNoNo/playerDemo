@@ -1,256 +1,507 @@
+// FileView.cpp : 实现文件
+//
 
 #include "stdafx.h"
-#include "mainfrm.h"
-#include "FileView.h"
-#include "Resource.h"
 #include "PlayDemo.h"
-
-#ifdef _DEBUG
-#undef THIS_FILE
-static char THIS_FILE[]=__FILE__;
-#define new DEBUG_NEW
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-// CFileView
-
-CFileView::CFileView()
+#include "FileView.h"
+#include "FTPCmdClass.h"
+#include "ChildView.h"
+//
+UINT ThreadProc_LoadFileViewData(LPVOID lParam)
 {
-}
+	CFileView *pFileView = (CFileView*)lParam;
 
-CFileView::~CFileView()
-{
-}
+	//	设置时间限制
 
-BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
-	ON_WM_CREATE()
-	ON_WM_SIZE()
-	ON_WM_CONTEXTMENU()
-	ON_COMMAND(ID_PROPERTIES, OnProperties)
-	ON_COMMAND(ID_OPEN, OnFileOpen)
-	ON_COMMAND(ID_OPEN_WITH, OnFileOpenWith)
-	ON_COMMAND(ID_DUMMY_COMPILE, OnDummyCompile)
-	ON_COMMAND(ID_EDIT_CUT, OnEditCut)
-	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
-	ON_COMMAND(ID_EDIT_CLEAR, OnEditClear)
-	ON_WM_PAINT()
-	ON_WM_SETFOCUS()
-END_MESSAGE_MAP()
+	CTime tmStart,tmEnd;
+	CString strCarId;
 
-/////////////////////////////////////////////////////////////////////////////
-// CWorkspaceBar 消息处理程序
+	pFileView->GetDateTime(tmStart,0);
+	pFileView->GetDateTime(tmEnd,1);
 
-int CFileView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
-	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
-		return -1;
+	pFileView->m_ComboxCarSelect.GetWindowText(strCarId);
 
-	CRect rectDummy;
-	rectDummy.SetRectEmpty();
+	CDbOperation dbOperator;
 
-	// 创建视图:
-	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE /*| TVS_HASLINES*/ | TVS_LINESATROOT | TVS_HASBUTTONS;
+	//	如果CDbOperation在线程中，则必须在此线程中CoInitialize(NULL)
+	CoInitialize(NULL);
 
-	if (!m_wndFileView.Create(dwViewStyle, rectDummy, this, 4))
+	//	获取数据库数据
+	if( !dbOperator.GetCarData(theApp.m_strDbFilePath,tmStart,tmEnd,strCarId))
 	{
-		TRACE0("未能创建文件视图\n");
-		return -1;      // 未能创建
+		AfxMessageBox(L"数据库数据获取失败");
+		return 0;
 	}
 
-	// 加载视图图像:
-	m_FileViewImages.Create(IDB_FILE_VIEW, 16, 0, RGB(255, 0, 255));
-	m_wndFileView.SetImageList(&m_FileViewImages, TVSIL_NORMAL);
+	CString carName,picPath,videoPath;
+	COleDateTime date;
+	//	分析数据库数据
 
-	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_EXPLORER);
-	m_wndToolBar.LoadToolBar(IDR_EXPLORER, 0, 0, TRUE /* 已锁定*/);
+	pFileView->m_pCarFileInfo->Lock();
+	while (!dbOperator.RecordSet.IsEOF())
+	{
+		carName = dbOperator.RecordSet.GetValueString(L"CAR_NAME");
+		if(carName.GetLength() < 1)
+			continue;
+		date    = dbOperator.RecordSet.GetValueDate(L"HAPPEN_DATE");
+		if(date.GetStatus() != 0)
+			continue;
+		picPath = dbOperator.RecordSet.GetValueString(L"PIC_PATH");
+		videoPath = dbOperator.RecordSet.GetValueString(L"VIDEO_PATH");
+		
+		pFileView->m_pCarFileInfo->AddFileInfo(carName,date,picPath,videoPath);
+		
+		dbOperator.RecordSet.MoveNext();
+	}
 
-	OnChangeVisualStyle();
+	pFileView->m_pCarFileInfo->Unlock();
 
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
-
-	m_wndToolBar.SetOwner(this);
-
-	// 所有命令将通过此控件路由，而不是通过主框架路由:
-	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-
-	// 填入树视图数据
-	FillFileView();
-	AdjustLayout();
+	pFileView->PlayBack();
+	pFileView->ChangeDateTimeUI(TRUE);
 
 	return 0;
 }
 
-void CFileView::OnSize(UINT nType, int cx, int cy)
+UINT ThreadProc_LoadlocFile(LPVOID lParam)
 {
-	CDockablePane::OnSize(nType, cx, cy);
-	AdjustLayout();
-}
+	CFileView *pFileView = (CFileView*)lParam;
 
-void CFileView::FillFileView()
-{
-	HTREEITEM hRoot = m_wndFileView.InsertItem(_T("机车数据"), 0, 0);
-	m_wndFileView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
+	CString  strLocPicPath = theApp.m_strPicPath + L"\\*.jpg";
+	CString  strLocVideoPath = theApp.m_strVideoPath + L"\\*.mp4";
+	//	
+	pFileView->m_ComboxPlaySource.EnableWindow(FALSE);
 
-	HTREEITEM hSrc = m_wndFileView.InsertItem(_T("5000"), 0, 0, hRoot);
-
-	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
-	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
-	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
-	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
-	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
-	m_wndFileView.InsertItem(_T("5000"), 2, 2, hSrc);
-
-	HTREEITEM hInc = m_wndFileView.InsertItem(_T("5001"), 0, 0, hRoot);
-
-	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
-	m_wndFileView.InsertItem(_T("5001"), 2, 2, hInc);
-
-	HTREEITEM hRes = m_wndFileView.InsertItem(_T("5002"), 0, 0, hRoot);
-
-	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
-	m_wndFileView.InsertItem(_T("5002"), 2, 2, hRes);
-
-	m_wndFileView.Expand(hRoot, TVE_EXPAND);
-	m_wndFileView.Expand(hSrc, TVE_EXPAND);
-	m_wndFileView.Expand(hInc, TVE_EXPAND);
-}
-
-void CFileView::OnContextMenu(CWnd* pWnd, CPoint point)
-{
-	CTreeCtrl* pWndTree = (CTreeCtrl*) &m_wndFileView;
-	ASSERT_VALID(pWndTree);
-
-	if (pWnd != pWndTree)
+	//	读取本地文件夹 文件
+	if( !pFileView->FindLocFile(strLocPicPath,FALSE) )
 	{
-		CDockablePane::OnContextMenu(pWnd, point);
-		return;
+		//AfxMessageBox(theApp.m_strPicPath + L"路径下文件为空!");
+	}
+	if( !pFileView->FindLocFile(strLocVideoPath,TRUE))
+	{
+		//AfxMessageBox(theApp.m_strVideoPath + L"路径下文件为空!");
+	}
+	
+	pFileView->m_ComboxPlaySource.EnableWindow(TRUE);
+	return 0;
+}
+
+//	下载文件线程
+UINT ThreadProc_DownLoadFile(LPVOID lParam)
+{
+	FileDownLoadInfo *pInfo = (FileDownLoadInfo*)lParam;
+
+	CFTPCmdClass *pDownLoadCmd = new CFTPCmdClass;
+	CString str;
+	ASSERT(pDownLoadCmd);
+
+	BOOL bRet = FALSE;
+	for(int i=0 ; i<DEFAULT_FTP_UPLOAD_TIMES ; i++)
+	{
+		//登录
+		if(!pDownLoadCmd->LogOn(pInfo->csServIp,pInfo->nServPort,
+			pInfo->csServUser,pInfo->csServPassword))
+		{
+			//Log(L_WARNING,L"登录失败!");
+			continue;
+		}
+
+		if(!pDownLoadCmd->DownloadFile(pInfo->csLocFileDir,pInfo->csTPFileName,&pInfo->ullTPFileByte,pInfo->csServFileDir,&(pInfo->ullTPDestnFileSize),
+			&(pInfo->ullTpFileSize),pInfo->hEvtEndModule,pInfo->bIsPort,pInfo->bIsForce))
+		{
+			continue;
+		}
+	
+		bRet = TRUE;
+		//pInfo->pCarInfo->Lock();
+		pInfo->pCarInfo->UpdateLocFileInfo(pInfo->strCarId,pInfo->strTm,pInfo->strLocFilePath,pInfo->nLocFileType);
+		//pInfo->pCarInfo->Unlock();
+
+		TRACE( L"%s文件 第%d次结束%s\n", pInfo->csTPFileName, i,L"下载");
+		break;
+
 	}
 
-	if (point != CPoint(-1, -1))
-	{
-		// 选择已单击的项:
-		CPoint ptTree = point;
-		pWndTree->ScreenToClient(&ptTree);
+	delete pDownLoadCmd;
+	delete pInfo;
+	return 0;
+}
 
-		UINT flags = 0;
-		HTREEITEM hTreeItem = pWndTree->HitTest(ptTree, &flags);
-		if (hTreeItem != NULL)
+//
+UINT ThreadProc_LoadCarId(LPVOID lParam)
+{
+	CFileView*    pFileView = (CFileView*)lParam;
+	CCarFileInfo* pFileInfo = pFileView->m_pCarFileInfo;
+	CDbOperation dbOperator;
+
+	//	如果CDbOperation在线程中，则必须在此线程中CoInitialize(NULL)
+	CoInitialize(NULL);
+
+	dbOperator.GetCarName(theApp.m_strDbFilePath);
+	//
+	pFileView->m_ComboxCarSelect.EnableWindow(FALSE);
+
+	CString result;
+	pFileInfo->Lock();
+	while (!dbOperator.RecordSet.IsEOF())
+	{
+		result = dbOperator.RecordSet.GetValueString(L"CAR_NAME");
+
+		pFileInfo->AddCarId(result);
+		dbOperator.RecordSet.MoveNext();
+	}
+	pFileInfo->Unlock();
+
+	pFileView->InitComboxCarSelCtrl();
+
+	pFileView->m_ComboxCarSelect.EnableWindow(TRUE);
+	return 0;
+
+}
+// CFileView
+
+IMPLEMENT_DYNCREATE(CFileView, CFormView)
+
+CFileView::CFileView()
+	: CFormView(CFileView::IDD)
+{
+	m_pLoadDataThread = NULL;
+	m_pLoadLocFileThread = NULL;
+	m_pCarFileInfo = new CCarFileInfo;
+}
+
+CFileView::~CFileView()
+{
+	if(m_pCarFileInfo)
+		delete m_pCarFileInfo;
+	if(m_pLoadDataThread)
+		::WaitForSingleObject(m_pLoadDataThread->m_hThread,0);
+	if(m_pLoadLocFileThread)
+		::WaitForSingleObject(m_pLoadLocFileThread->m_hThread,0);
+
+}
+
+void CFileView::DoDataExchange(CDataExchange* pDX)
+{
+	CFormView::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_DATETIMEPICKER1, m_DateStart);
+	DDX_Control(pDX, IDC_DATETIMEPICKER2, m_TimeStart);
+	DDX_Control(pDX, IDC_DATETIMEPICKER3, m_DateEnd);
+	DDX_Control(pDX, IDC_DATETIMEPICKER4, m_TimeEnd);
+	DDX_Control(pDX, IDC_COMBO2, m_ComboxCarSelect);
+	DDX_Control(pDX, IDC_COMBO3, m_ComboxPlaySource);
+}
+
+BEGIN_MESSAGE_MAP(CFileView, CFormView)
+		ON_WM_DESTROY()
+		ON_WM_MOUSEACTIVATE()
+		ON_BN_CLICKED(IDC_BUTTON2, &CFileView::OnBnClickedButton2)
+END_MESSAGE_MAP()
+
+
+// CFileView 诊断
+
+#ifdef _DEBUG
+void CFileView::AssertValid() const
+{
+	CFormView::AssertValid();
+}
+
+#ifndef _WIN32_WCE
+void CFileView::Dump(CDumpContext& dc) const
+{
+	CFormView::Dump(dc);
+}
+
+BOOL CFileView::Create(LPCTSTR lpszClassName, LPCTSTR lpszWindowName, DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT nID, CCreateContext* pContext)
+{
+	return CFormView::Create(lpszClassName, lpszWindowName, dwStyle, rect, pParentWnd, nID, pContext);
+}
+
+void CFileView::OnDestroy()
+{
+	CWnd::OnDestroy();  //重载为CWnd方法  
+}
+
+void CFileView::PostNcDestroy()
+{
+
+}
+
+void CFileView::OnSize(UINT nType, int cx, int cy)
+{
+	CWnd::OnSize(nType, cx, cy);  
+}
+
+int CFileView::OnMouseActivate(CWnd* pDesktopWnd, UINT nHitTest, UINT message)
+{
+	return CWnd::OnMouseActivate(pDesktopWnd, nHitTest, message);
+}
+
+void CFileView::OnActivateFrame(UINT nState, CFrameWnd* pDeactivateFrame)
+{
+
+}
+
+#endif
+#endif //_DEBUG
+
+
+// CFileView 消息处理程序
+
+void CFileView::OnInitialUpdate()
+{
+	CFormView::OnInitialUpdate();
+
+	// TODO: 在此添加专用代码和/或调用基类
+
+	//m_DateStart.SetFormat(L"yyyy-MM-dd   HH:mm:ss");
+	//m_ComboxPlaySource.SetCurSel(0);
+	BeginInitComboxCarCtrl();
+	BeginLoadLocFileThread();
+
+}
+#include "MainFrm.h"
+void CFileView::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+
+	((CMainFrame*)theApp.m_pMainWnd)->GetChildView();
+
+	if( m_ComboxCarSelect.GetCurSel() < 0)
+	{
+		MessageBox(L"未选中机车",L"机车文件");
+		return;
+	}
+	if(m_ComboxPlaySource.GetCurSel() < 0)
+	{
+		MessageBox(L"未选中播放源",L"机车文件");
+		return;
+	}
+	if(!TimeCheck())
+	{
+		return ;
+	}
+	//	禁止修改
+	ChangeDateTimeUI(FALSE);
+
+	if(m_ComboxPlaySource.GetCurSel() == 1)
+		BeginLoadDataThread();
+	else
+	{
+
+		PlayBack();
+		ChangeDateTimeUI(TRUE);
+	}
+
+	return;
+}
+
+BOOL CFileView::TimeCheck()
+{
+	CTime tmStart,tmEnd;
+
+	if( !GetDateTime(tmStart,0) )
+	{
+		return FALSE;
+	}
+
+	if( !GetDateTime(tmEnd,1) )
+	{
+		return FALSE;
+	}
+
+	if(tmStart > tmEnd || (tmStart < INIT_STOREINFO_DATETIME) || tmEnd > CTime::GetCurrentTime())
+	{
+		MessageBox(L"时间不符合规范");
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+void CFileView::BeginLoadDataThread()
+{	
+	//	如果正在加载数据
+	if(m_pLoadDataThread)		// 若线程已经运行，则等待结束
+	{
+		if(::WaitForSingleObject(m_pLoadDataThread->m_hThread,0) != WAIT_OBJECT_0)
+		{	
+			MessageBox(L"另外一个任务正在执行,稍后再试",L"机车文件");
+			return ;
+		}
+		delete m_pLoadDataThread;
+		m_pLoadDataThread=NULL;
+	}
+
+	if(m_pLoadDataThread = AfxBeginThread(ThreadProc_LoadFileViewData,(LPVOID)this,THREAD_PRIORITY_ABOVE_NORMAL,
+		0,CREATE_SUSPENDED,NULL))
+	{
+		m_pLoadDataThread->m_bAutoDelete=FALSE;
+		m_pLoadDataThread->ResumeThread();
+	}
+	return;
+
+}
+
+//	获取控件当前时间 默认参数 0 表示开始时间  
+BOOL CFileView::GetDateTime(CTime &tmR,int nDateTimeType/* = 0*/)
+{
+	CTime tmDateS,tmTimeS,tmDateE,tmTimeE;
+	if(nDateTimeType == 0)
+	{
+		if(m_DateStart.GetTime(tmDateS) != GDT_VALID || m_TimeStart.GetTime(tmTimeS) != GDT_VALID )
 		{
-			pWndTree->SelectItem(hTreeItem);
+			MessageBox(L"初始时间未设置",L"机车文件");
+			return FALSE;
+		}
+		CTime tmStart(tmDateS.GetYear(),tmDateS.GetMonth(),tmDateS.GetDay(),tmTimeS.GetHour(),tmTimeS.GetMinute(),tmTimeS.GetSecond());
+		tmR = tmStart;
+		return TRUE;
+	}
+	
+	if(m_DateEnd.GetTime(tmDateE) != GDT_VALID || m_TimeEnd.GetTime(tmTimeE) != GDT_VALID )
+	{
+		MessageBox(L"结束时间未设置",L"机车文件");
+		return FALSE;
+	}
+	CTime tmEnd(tmDateE.GetYear(),tmDateE.GetMonth(),tmDateE.GetDay(),tmTimeE.GetHour(),tmTimeE.GetMinute(),tmTimeE.GetSecond());
+	tmR = tmEnd;
+	return TRUE;
+}
+
+void CFileView::PlayBack()
+{	
+	CTime tmS,tmE;
+	GetDateTime(tmS,0);
+	GetDateTime(tmE,1);
+	
+	CString strCarId;
+	BOOL	bIsVideo = TRUE;
+	m_ComboxCarSelect.GetWindowText(strCarId);
+	
+	CChildView* pView = (CChildView*)GetChildView();
+
+	m_pCarFileInfo->Lock();
+
+	for(std::map<CString,CFilePath*>::iterator it = m_pCarFileInfo->GetFileIter(strCarId,tmS,1) ; it!=m_pCarFileInfo->GetFileIter(strCarId,tmE,0) ;it++)
+	{
+		pView->SendMessage(WM_ADDFILELIST,(WPARAM)&(it->second->strServVideoPath),(LPARAM)&bIsVideo);
+	}
+
+	m_pCarFileInfo->Unlock();
+
+}
+
+void CFileView::ChangeDateTimeUI(BOOL bEnable)
+{
+	m_DateStart.EnableWindow(bEnable);
+	m_DateEnd.EnableWindow(bEnable);
+	m_TimeStart.EnableWindow(bEnable);
+	m_TimeEnd.EnableWindow(bEnable);
+
+	GetDlgItem(IDC_BUTTON2)->EnableWindow(bEnable);
+	m_ComboxCarSelect.EnableWindow(bEnable);
+	m_ComboxPlaySource.EnableWindow(bEnable);
+}
+
+CView* CFileView::GetChildView()
+{
+	POSITION rPos =  theApp.m_pPlay->GetFirstDocPosition();
+	if(rPos == 0)
+	{
+		theApp.m_pPlay->OpenDocumentFile(NULL);
+	}
+
+	rPos =  theApp.m_pPlay->GetFirstDocPosition();
+	CDocument* pDoc = theApp.m_pPlay->GetNextDoc(rPos);
+
+	CView *pView;
+	if(pDoc)
+	{
+		POSITION pos = pDoc->GetFirstViewPosition();   //查询此doc下的所有已创建view
+		while (pos != NULL)
+		{
+			pView = pDoc->GetNextView(pos);
+			if (pView->IsKindOf(RUNTIME_CLASS(CChildView)))   //如果已创建此view 则设其为活动
+			{ 
+				// the requested view class has already been created; show it
+				//CFrameWnd* pWnd= pView->GetParentFrame();
+				//pWnd->ActivateFrame();  
+				pView->UpdateWindow();//视图更新显示；
+				return pView;
+			}
+		}
+	}
+}
+
+void CFileView::BeginInitComboxCarCtrl()
+{
+	AfxBeginThread(ThreadProc_LoadCarId,(LPVOID)this,THREAD_PRIORITY_ABOVE_NORMAL,0,0,NULL);
+
+}
+
+void CFileView::InitComboxCarSelCtrl()
+{
+	m_ComboxCarSelect.ResetContent();
+
+	m_pCarFileInfo->Lock();
+	for(std::map<CString,CFileInfo*>::iterator it = m_pCarFileInfo->m_mpFileInfo.begin() ; it!=m_pCarFileInfo->m_mpFileInfo.end() ; it++)
+	{
+		m_ComboxCarSelect.AddString(it->first);
+	}
+	m_pCarFileInfo->Unlock();
+	
+}
+
+void CFileView::BeginLoadLocFileThread()
+{
+	//	如果正在加载数据
+	if(m_pLoadLocFileThread)		// 若线程已经运行，则等待结束
+	{
+		if(::WaitForSingleObject(m_pLoadLocFileThread->m_hThread,0) != WAIT_OBJECT_0)
+		{	
+			MessageBox(L"另外一个任务正在执行,稍后再试",L"机车文件");
+			return ;
+		}
+		delete m_pLoadLocFileThread;
+		m_pLoadLocFileThread=NULL;
+	}
+
+	if(m_pLoadLocFileThread = AfxBeginThread(ThreadProc_LoadlocFile,(LPVOID)this,THREAD_PRIORITY_ABOVE_NORMAL,
+		0,CREATE_SUSPENDED,NULL))
+	{
+		m_pLoadLocFileThread->m_bAutoDelete=FALSE;
+		m_pLoadLocFileThread->ResumeThread();
+	}
+	return;
+}
+
+
+BOOL CFileView::FindLocFile(CString strFilePath,BOOL bIsVideoFile /*= TRUE*/)
+{
+	CString  strFileName,strCarId,strDatetime;
+	CFileFind fileFind;
+	BOOL bIsFinded;
+
+	bIsFinded = fileFind.FindFile( strFilePath );
+	if( !bIsFinded )
+		return FALSE;
+
+	m_pCarFileInfo->Lock();
+	while(bIsFinded)
+	{
+		bIsFinded=fileFind.FindNextFile();
+		//隐藏文件不显示
+		if(fileFind.IsHidden())continue;
+		//目录略过
+		if(fileFind.IsDirectory())continue;
+		strFileName = fileFind.GetFileName();
+		if(GetCarAndDateFromFileName(strFileName,strCarId,strDatetime,bIsVideoFile))
+		{
+			m_pCarFileInfo->UpdateLocFileInfo(strCarId,strDatetime,fileFind.GetFilePath(),bIsVideoFile);
 		}
 	}
 
-	pWndTree->SetFocus();
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EXPLORER, point.x, point.y, this, TRUE);
+	m_pCarFileInfo->Unlock();
+	return TRUE;
 }
-
-void CFileView::AdjustLayout()
-{
-	if (GetSafeHwnd() == NULL)
-	{
-		return;
-	}
-
-	CRect rectClient;
-	GetClientRect(rectClient);
-
-	int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-
-	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-	m_wndFileView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
-}
-
-void CFileView::OnProperties()
-{
-	//AfxMessageBox(_T("属性...."));
-
-}
-
-void CFileView::OnFileOpen()
-{
-	// TODO: 在此处添加命令处理程序代码
-}
-
-void CFileView::OnFileOpenWith()
-{
-	// TODO: 在此处添加命令处理程序代码
-}
-
-void CFileView::OnDummyCompile()
-{
-	// TODO: 在此处添加命令处理程序代码
-}
-
-void CFileView::OnEditCut()
-{
-	// TODO: 在此处添加命令处理程序代码
-}
-
-void CFileView::OnEditCopy()
-{
-	// TODO: 在此处添加命令处理程序代码
-}
-
-void CFileView::OnEditClear()
-{
-	// TODO: 在此处添加命令处理程序代码
-}
-
-void CFileView::OnPaint()
-{
-	CPaintDC dc(this); // 用于绘制的设备上下文
-
-	CRect rectTree;
-	m_wndFileView.GetWindowRect(rectTree);
-	ScreenToClient(rectTree);
-
-	rectTree.InflateRect(1, 1);
-	dc.Draw3dRect(rectTree, ::GetSysColor(COLOR_3DSHADOW), ::GetSysColor(COLOR_3DSHADOW));
-}
-
-void CFileView::OnSetFocus(CWnd* pOldWnd)
-{
-	CDockablePane::OnSetFocus(pOldWnd);
-
-	m_wndFileView.SetFocus();
-}
-
-void CFileView::OnChangeVisualStyle()
-{
-	m_wndToolBar.CleanUpLockedImages();
-	m_wndToolBar.LoadBitmap(theApp.m_bHiColorIcons ? IDB_EXPLORER_24 : IDR_EXPLORER, 0, 0, TRUE /* 锁定 */);
-
-	m_FileViewImages.DeleteImageList();
-
-	UINT uiBmpId = theApp.m_bHiColorIcons ? IDB_FILE_VIEW_24 : IDB_FILE_VIEW;
-
-	CBitmap bmp;
-	if (!bmp.LoadBitmap(uiBmpId))
-	{
-		TRACE(_T("无法加载位图: %x\n"), uiBmpId);
-		ASSERT(FALSE);
-		return;
-	}
-
-	BITMAP bmpObj;
-	bmp.GetBitmap(&bmpObj);
-
-	UINT nFlags = ILC_MASK;
-
-	nFlags |= (theApp.m_bHiColorIcons) ? ILC_COLOR24 : ILC_COLOR4;
-
-	m_FileViewImages.Create(16, bmpObj.bmHeight, nFlags, 0, 0);
-	m_FileViewImages.Add(&bmp, RGB(255, 0, 255));
-
-	m_wndFileView.SetImageList(&m_FileViewImages, TVSIL_NORMAL);
-}
-
-

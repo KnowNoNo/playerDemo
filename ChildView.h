@@ -4,7 +4,6 @@
 #if _MSC_VER > 1000
 #pragma once
 #endif // _MSC_VER > 1000
-
 #include "DlgOpenFile.h"
 #include "HoverButton.h"
 #include "NiceSlider.h"
@@ -20,6 +19,8 @@
 #include "BitMapSlider.h"
 #include "afxwin.h"
 #include "PlayDemoDlg.h"
+
+#define		WM_ADDFILELIST	(WM_USER+10)
 
 enum MENU_STATE{FILEOPEN, FILECLOSE, FILEINDEXCREATED, STOPPLAY, STARTPLAY,ENABLEFISHEYE,DISABLEFISHEYE};
 // Ã¶¾Ù±àÂë¸ñÊ½
@@ -100,8 +101,10 @@ protected:
 	afx_msg void OnNMDblclkList2(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawSliderAudio(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawList2(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMRClickList2(NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnSettingPrimodialsize();
+	afx_msg LRESULT OnAddFileList(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnEnctypeChange(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnSrcArea(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnIndexCreated(WPARAM wParam, LPARAM lParam);
@@ -130,9 +133,10 @@ protected:
 	int MediaInit();
 	int OpenAudio();
 	int CloseAudio();
-	int AddFileList(CString csFilePath);
 	int	SetCurIndex(int iIndex);
 	CMenu* GetMenu();
+	int AddFileList(CString csFilePath,BOOL bIsCarVideo = FALSE);
+	void PlayNewFile(int nItem);
 private:
 
 	CNiceSliderCtrl m_sdProc;
@@ -178,6 +182,8 @@ private:
 
 	UINT m_lastFisheyeMode;
 	CToolTipCtrl m_ContentTip;
+	
+	CCriticalSection	m_CSFor_ListCtrl;
 	
 	CMenu*	    m_pMenu;
 
@@ -233,4 +239,9 @@ public:
 private:
 	BOOL CheckUTF8NoBOM(void* pBuffer, long size);
 	EncodingType GetEncodingTypeFromStr(char *src, long len);
+
+public:
+	afx_msg void OnChildPlaylistPlay();
+	afx_msg void OnIdChildPlaylistErase();
+	void AddPopPic(UINT cxScreen);
 };

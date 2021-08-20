@@ -85,7 +85,23 @@ void CHoverButton::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct)
 
 	if (!m_bButtonEnable)
 		mydc->BitBlt(0,0,m_ButtonSize.cx,m_ButtonSize.cy,pMemDC,m_ButtonSize.cx*3,0,SRCCOPY);
-	
+	   
+	//CFont new_font;
+
+	////创建字体宋体格式  100为字高
+	//VERIFY(new_font.CreatePointFont(100, _T("宋体"), mydc));
+
+	////选择该字体进入PDC
+	//CFont* default_font = mydc->SelectObject(&new_font);
+
+	// mydc->SetBkMode(TRANSPARENT);
+	//mydc->SetTextColor(RGB(250, 91, 91));
+	//CRect rect(0,0,13,13);
+	//mydc->DrawText(CString("123"), rect,
+	//	DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+	//mydc->SelectObject(default_font);
+	//new_font.DeleteObject();
+
     // clean up
     pMemDC->SelectObject(pOldBitmap);
     delete pMemDC;

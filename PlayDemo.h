@@ -5,76 +5,50 @@
 
 #include "resource.h"		// main symbols
 #include "afxwinappex.h"
+#include "CarInfo.h"
 #include "map"
-
-#define		INIT_STOREINFO_DATETIME			CTime(2021,1,1,0,0,0)
-//#define		MAX_CAR_COUNT					50
-#define		MAX_CAR_YEAR_COUNT				50
-#define		MAX_CAR_MONTH_COUNT				12
-#define		MAX_CAR_DAY_COUNT				31
-
-//	日期内 驾驶报警信息 类
-class CDateInfo
+#include "./Oracle/DbOperation.h"
+/////////////////////////////////////////////////////////////////////////////
+// CPlayDemoApp:
+// See PlayDemo.cpp for the implementation of this class
+//
+enum DateSelectType
 {
-public:
-	int		nCount;		// 文件数量
-	CString csPath;		// 文件位置
-	CDateInfo()
-	{
-		nCount = 0;
-		csPath = L"";
-	}
-};
-//	车辆 驾驶报警信息 类
-class CCarInfo
-{
-public:
-	int			nID;													// 车辆ID / ip
-	int			nDefaultInitYear;										// 默认数据初始化 所在年份
-	CDateInfo	arrInfo[MAX_CAR_YEAR_COUNT + 1][MAX_CAR_MONTH_COUNT + 1][MAX_CAR_DAY_COUNT + 1];
-	
-	CCarInfo()
-	{
-		nID = -1;
-		nDefaultInitYear = (INIT_STOREINFO_DATETIME.GetYear()) - 1;
-	}
-
-	int GetCount(int nYear = 0, int nMonth = 0, int nDay = 0)			// 获得该年月日 驾驶报警信息数量 ：参数列表（nY,nM,nD）= nY年nM月nD日  |  如果值=0,（2021,2,0）或（1,2）= 2021年2月,...
-	{
-		//	时间不能低于默认初始时间2021年1月1日		高于2021+MAX_CAR_YEAR_COUNT年
-		if(nYear <= nDefaultInitYear || nYear > nDefaultInitYear+MAX_CAR_YEAR_COUNT)
-			return -1;
-
-		return arrInfo[nYear - nDefaultInitYear][nMonth][nDay].nCount;
-	}
-
-	CString GetPath(int nYear = 0, int nMonth = 0, int nDay = 0)		// 获得该年月日 驾驶报警文件或文件夹位置
-	{
-		if(nYear <= nDefaultInitYear || nYear > nDefaultInitYear+MAX_CAR_YEAR_COUNT)
-			return L"";
-
-		return arrInfo[nYear - nDefaultInitYear][nMonth][nDay].csPath;
-	}
-
+	YEAR,
+	MONTH,
+	DAY,
+	HOUR,
 };
 
-//	数据分析类 
 class CAnalysisInfo
 {
 public:
-	int						nCarCount;		// 车辆数量
-	std::map<int,CCarInfo>	carInfo;		// 车辆信息
-
-protected:
+	int					nCarCount;
+	CTime				tmStart;					// 数据限制起始时间
+	CTime				tmEnd;						// 数据限制终止时间
+	CString				strDbFilePath;
+	std::map<CString,CCarInfo*>	mpCarInfo;			// 机车号-机车信息
+	CWinThread			*pLoadDataThread;
 	CRITICAL_SECTION	section;
-public:
+
 	CAnalysisInfo()
 	{
 		InitializeCriticalSection(&section);
+		nCarCount = 0;
+		pLoadDataThread = NULL;
+
+		CString path; 
+		GetModuleFileName(NULL,path.GetBufferSetLength(MAX_PATH+1),MAX_PATH); 
+		path.ReleaseBuffer(); 
+		int pos = path.ReverseFind('\\'); 
+		path = path.Left(pos); 
+		strDbFilePath = path;
+		strDbFilePath += L"\\sql.udl";
 	}
 	~CAnalysisInfo()
 	{
 		DeleteCriticalSection(&section);
+		Clear();
 	}
 	void Lock(void)
 	{
@@ -85,13 +59,87 @@ public:
 		LeaveCriticalSection(&section);
 	}
 
+	BOOL LoadData()
+	{
+		CString dbFilePath = strDbFilePath;
+
+		CDbOperation dbOperator;
+
+		//	如果CDbOperation在线程中，则必须在此线程中CoInitialize(NULL)
+		CoInitialize(NULL);
+
+		Clear();
+		//	获取数据库数据
+
+		if( !dbOperator.GetAllData(dbFilePath,tmStart,tmEnd))
+		{
+			return FALSE;
+		}
+
+		CString carName,picPath,videoPath;
+		COleDateTime date;
+		//	分析数据库数据
+		while (!dbOperator.RecordSet.IsEOF())
+		{
+			carName = dbOperator.RecordSet.GetValueString(L"CAR_NAME");
+			if(carName.GetLength() < 1)
+				continue;
+			date    = dbOperator.RecordSet.GetValueDate(L"HAPPEN_DATE");
+			if(date.GetStatus() != 0)
+				continue;
+			picPath = dbOperator.RecordSet.GetValueString(L"PIC_PATH");
+			videoPath = dbOperator.RecordSet.GetValueString(L"VIDEO_PATH");
+
+			if(mpCarInfo.count(carName) < 1)
+			{
+				mpCarInfo.insert(std::map<CString,CCarInfo*>::value_type(carName,new CCarInfo));
+			}
+			mpCarInfo[carName]->UpdateData(date.GetYear(),
+				date.GetMonth(),date.GetDay(),date.GetHour(),picPath,videoPath);
+			dbOperator.RecordSet.MoveNext();
+		}
+
+		dbOperator.RecordSet.Close();
+		return TRUE;
+	}
+
+	void Clear()
+	{
+		for(std::map<CString,CCarInfo*>::iterator it = mpCarInfo.begin() ; it!=mpCarInfo.end() ;it++)
+		{
+			delete it->second;
+		}
+		mpCarInfo.clear();
+	}
+	//void BeginLoadDataThread(LPVOID lpVoid)
+	//{
+	//	if(pLoadDataThread)		// 若线程已经运行，则等待结束
+	//	{
+	//		::WaitForSingleObject(pLoadDataThread->m_hThread,0);
+	//		delete pLoadDataThread;
+	//		pLoadDataThread=NULL;
+	//	}
+
+	//	if(pLoadDataThread = AfxBeginThread(ThreadProc_LoadData,lpVoid,THREAD_PRIORITY_ABOVE_NORMAL,
+	//		0,CREATE_SUSPENDED,NULL))
+	//	{
+	//		pLoadDataThread->m_bAutoDelete=FALSE;
+	//		pLoadDataThread->ResumeThread();
+	//	}
+	//	return;
+	//}
+
+	int GetData(CString strCarId,int nYear = 0, int nMonth = 0, int nDay = 0, int nHour = 0)
+	{
+		if(mpCarInfo.count(strCarId) < 1)
+		{
+			TRACE(L"查询数据 未出现 %s 机车",strCarId);
+			return 0;
+		}
+		return mpCarInfo[strCarId]->GetData(nYear,nMonth,nDay,nHour);
+	}
 };
 
-
-/////////////////////////////////////////////////////////////////////////////
-// CPlayDemoApp:
-// See PlayDemo.cpp for the implementation of this class
-//
 class CPlayDemoApp : public CWinAppEx
 {
 public:
@@ -111,11 +159,17 @@ public:
 	CMultiDocTemplate	*m_pAnalysis;
 	CMultiDocTemplate   *m_pElements;
 
-	CAnalysisInfo		*m_pAnalyInfo;
-
+	CAnalysisInfo		*m_pAnalyPathInfo;
+	CString				m_strAppPath;
+	CString				m_strDbFilePath;
+	CString				m_strPicPath;
+	CString				m_strVideoPath;
+	CString				m_strIP;
+	int					m_nPort;
 public:
-	void LoadDate();
+	void LoadData();
 	void OnFileNew();
+	BOOL InitConfigure(void);
 public:
 	BOOL  m_bInit;
 	UINT  m_nAppLook;
